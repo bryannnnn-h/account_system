@@ -1,8 +1,6 @@
 import socketserver, sys, threading
 from time import ctime
-from venv import create
 import server_config
-import pymysql
 import sql_connecter
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):

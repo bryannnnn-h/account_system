@@ -8,7 +8,7 @@
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
-            "module": "OrderSystem.mainOrderSys",
+            "module": "mainOrderSystem.mainOrderSys",
             "justMyCode": true,
             "env": {
                 "PYTHONPATH": "./src;./src/ui_logic;./src/ui_python"

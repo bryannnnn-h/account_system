@@ -13,11 +13,11 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QListWidget" name="listWidget">
+  <widget class="QTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>350</y>
+     <x>160</x>
+     <y>310</y>
      <width>256</width>
      <height>192</height>
     </rect>
