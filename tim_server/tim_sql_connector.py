@@ -1,16 +1,23 @@
+from stat import filemode
 import pymysql
+import logging
 
 db_settings = {
     "host": "127.0.0.1",
     "port": 3306,
     "user": "root",
-    "password": "4499tttt6688",
+    "password": "4499tttd6688",
     "charset": "utf8mb4"
 }
 
 class db_connecter:
     def __init__(self):
         self.db_error = None
+        self.conn = None
+        self.db_logger = self.createDBLogger()
+        self.DBconnection()
+
+    def DBconnection(self):
         try:
             self.conn = pymysql.connect(**db_settings)
             try:
@@ -24,12 +31,26 @@ class db_connecter:
             except Exception as ex:
                 self.closeDB()
                 self.db_error = ex
+                self.db_logger.exception("Catch an exception when creating database or tables")
         except Exception as ex:
             self.db_error = ex
-            
+            self.db_logger.exception("Catch an exception when connecting to database")
 
     def closeDB(self):
         self.conn.close()
+    
+    def createDBLogger(self):
+        db_logger: logging.Logger = logging.getLogger(name='db')
+        db_logger.setLevel(logging.WARNING)
+        
+        s_handler: logging.StreamHandler = logging.StreamHandler()
+        f_handler: logging.FileHandler = logging.FileHandler(filename='dbErrorLog.log', mode='w')
+        formatter: logging.Formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        s_handler.setFormatter(formatter)
+        f_handler.setFormatter(formatter)
+        db_logger.addHandler(s_handler)
+        db_logger.addHandler(f_handler)
+        return db_logger
 
     def dbHandler(self, instruction):
         instrcution_label = instruction.split(" ")[0]
