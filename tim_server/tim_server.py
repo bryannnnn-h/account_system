@@ -10,7 +10,7 @@ class MyTCPServer(TCPServer):
         self.serv_logger = self.createServerLogger()
         self.db = db_connecter()
         if self.db.db_error:
-            self.serv_logger.error(f"與資料庫連線時發生錯誤，請排除錯誤後重新開啟伺服器\n按任意鍵關閉...")
+            self.serv_logger.error(f"Fail when connecting to db. Please close and restart server after solving problems.\nPress any keys to close...")
             msvcrt.getch()
             self.closeServer(False)
         self.serv_logger.debug(f'server start at {self.server_address}')
@@ -45,28 +45,37 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
         db = self.server.db
         serv_logger = self.server.serv_logger
         cur = threading.current_thread()
-        app = self.request.recv(1024).strip().decode()
-        self.request.sendall(f'{app} connected success. [{cur.name}] is handling requests'.encode())
-        serv_logger.debug(f'connected from {app} and {cur.name} is handling with him.')
-        while True:                
-            indata = self.request.recv(1024).strip().decode('utf-8')
-            if len(indata) == 0: 
-                self.request.close()
-                serv_logger.debug(f'{app} closed connection.')
-                self.closeThread(cur.name)
-            serv_logger.debug(f'{app} request: {indata}')
-            db.dbHandler(indata)
-            if db.db_error:
-                serv_logger.error(f"[{app}]操作資料庫時發生錯誤，請排除錯誤後重新開啟伺服器\n按任意鍵關閉...")
-                self.request.sendall('fail'.encode())
+        try:
+            app = self.request.recv(1024).strip().decode()
+            self.request.sendall('s'.encode())
+            serv_logger.debug(f'connected from {app} and {cur.name} is handling with him.')
+        except:
+            self.request.sendall('f'.encode())
+            serv_logger.exception(f'Some errors happen. Please close and restart server after solving problems.\nPress any keys to close...')
+            msvcrt.getch()
+            self.server.closeServer()
+        while True:
+            try:                
+                indata = self.request.recv(1024).strip().decode('utf-8')
+                if len(indata) == 0: 
+                    self.request.close()
+                    serv_logger.debug(f'{app} closed connection.')
+                    serv_logger.debug(f'{cur.name} is closed')
+                    break
+                serv_logger.debug(f'{app} request: {indata}')
+                db.dbHandler(indata)
+                if db.db_error:
+                    serv_logger.error(f"[{indata}] by [{app}] fail. Please close and restart server after solving problems.\nPress any keys to close...")
+                    self.request.sendall('fail'.encode())
+                    msvcrt.getch()
+                    self.server.closeServer()
+                serv_logger.debug(f'{app} request [{indata}] done')
+                self.request.sendall('s'.encode())
+            except:
+                serv_logger.exception(f'Some errors happen. Please close and restart server after solving problems.\nPress any keys to close...')
                 msvcrt.getch()
                 self.server.closeServer()
-            serv_logger.debug(f'{app} request [{indata}] done')
-            self.request.sendall('done'.encode())
-    
-    def closeThread(self, threadName):
-        self.server.serv_logger.debug(f'{threadName} is closed')
-        sys.exit(0)
+
             
 
 
