@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFrame, QWidget
 from ui_logic.call_orderSystem import OrderSystem
+from client import client_orderSystem
 
 def getTodayMenu():
     itemCount = 10
@@ -13,6 +14,7 @@ def getTodayMenu():
     return itemCount, storeName, itemNameList, priceList
 
 def main():
+    client = client_orderSystem()
     app = QApplication(sys.argv)
     itemCount, storeName, itemNameList, priceList = getTodayMenu()
     MyWin = OrderSystem(itemCount, storeName, itemNameList, priceList)

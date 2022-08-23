@@ -2,7 +2,7 @@ from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
 import os, sys, msvcrt
 import threading
 import logging
-from tim_sql_connector import db_connecter
+from sql_connector import db_connecter
 
 class MyTCPServer(TCPServer):
     def __init__(self, server_address, RequestHandler, bind_and_activate=True):
@@ -49,8 +49,8 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
             app = self.request.recv(1024).strip().decode()
             self.request.sendall('s'.encode())
             serv_logger.debug(f'connected from {app} and {cur.name} is handling with him.')
-        except:
-            self.request.sendall('f'.encode())
+        except Exception as ex:
+            self.request.sendall(str(ex).encode())
             serv_logger.exception(f'Some errors happen. Please close and restart server after solving problems.\nPress any keys to close...')
             msvcrt.getch()
             self.server.closeServer()
@@ -63,14 +63,18 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
                     serv_logger.debug(f'{cur.name} is closed')
                     break
                 serv_logger.debug(f'{app} request: {indata}')
-                db.dbHandler(indata)
-                if db.db_error:
-                    serv_logger.error(f"[{indata}] by [{app}] fail. Please close and restart server after solving problems.\nPress any keys to close...")
-                    self.request.sendall('fail'.encode())
-                    msvcrt.getch()
-                    self.server.closeServer()
-                serv_logger.debug(f'{app} request [{indata}] done')
-                self.request.sendall('s'.encode())
+                if indata.split(' ')[0] == 'GetData':
+                    indata = ' '.join(indata.split(' ')[1:])
+                    data = db.dbHandler(indata)
+                else:
+                    db.dbHandler(indata)
+                    if db.db_error:
+                        serv_logger.error(f"[{indata}] by [{app}] fail. Please close and restart server after solving problems.\nPress any keys to close...")
+                        self.request.sendall('fail'.encode())
+                        msvcrt.getch()
+                        self.server.closeServer()
+                    serv_logger.debug(f'{app} request [{indata}] done')
+                    self.request.sendall('s'.encode())
             except:
                 serv_logger.exception(f'Some errors happen. Please close and restart server after solving problems.\nPress any keys to close...')
                 msvcrt.getch()

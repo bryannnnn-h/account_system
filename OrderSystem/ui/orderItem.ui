@@ -7,10 +7,10 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>41</height>
+    <height>42</height>
    </rect>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,2,1">
+  <layout class="QHBoxLayout" name="orderItem_horizontalLayout" stretch="7,2,1">
    <property name="spacing">
     <number>5</number>
    </property>

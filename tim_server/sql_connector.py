@@ -1,4 +1,3 @@
-from stat import filemode
 import pymysql
 import logging
 
@@ -29,6 +28,7 @@ class db_connecter:
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (date VARCHAR(20), time VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT)')
             except Exception as ex:
+                self.closeDB()
                 self.db_error = ex
                 self.db_error_logger.exception("Catch an exception when creating database or tables")
         except Exception as ex:
