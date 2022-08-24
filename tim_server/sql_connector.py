@@ -1,5 +1,6 @@
 import pymysql
 import logging
+import numpy as np
 
 db_settings = {
     "host": "127.0.0.1",
@@ -25,8 +26,8 @@ class db_connecter:
                 self.db_cursor.execute('USE ernies_db')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS basic_info (id INT, name VARCHAR(20), grade INT, program VARCHAR(20), price INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayMenu (StoreName VARCHAR(20), ItemName VARCHAR(20), price INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (date VARCHAR(20), time VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (date VARCHAR(20), time VARCHAR(20), StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
             except Exception as ex:
                 self.closeDB()
                 self.db_error = ex
@@ -70,6 +71,12 @@ class db_connecter:
                 self.db_cursor.execute('INSERT INTO TodayMenu VALUES("%s", "%s", %d)' % (storename, itemname, int(price)))
                 self.conn.commit()
 
+            elif instrcution_label == "Fetch":
+                fetch_table = instruction_content.split(' ')[0]
+                fetch_column = ','.join(instruction_content.split(' ')[1:])
+                self.db_cursor.execute(f'SELECT {fetch_column} FROM {fetch_table}')
+                result = np.array(self.db_cursor.fetchall())
+                return result
 
             elif instrcution_label == "Clear":
                 clearTable = instruction_content

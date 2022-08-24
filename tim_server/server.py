@@ -1,5 +1,5 @@
 from socketserver import ThreadingMixIn, TCPServer, BaseRequestHandler
-import os, sys, msvcrt
+import os, sys, msvcrt, pickle
 import threading
 import logging
 from sql_connector import db_connecter
@@ -66,6 +66,29 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
                 if indata.split(' ')[0] == 'GetData':
                     indata = ' '.join(indata.split(' ')[1:])
                     data = db.dbHandler(indata)
+                    if db.db_error:
+                        serv_logger.error(f"[{indata}] by [{app}] fail. Please close and restart server after solving problems.\nPress any keys to close...")
+                        self.request.sendall('fail'.encode())
+                        msvcrt.getch()
+                        self.server.closeServer()
+                    data = pickle.dumps(data)
+                    data_len = len(data)
+                    if data_len == 0:
+                        serv_logger.debug(f'{indata} gets nothing')
+                        self.request.sendall('empty'.encode())
+                        sendflag = self.request.recv(1024).decode()
+                    else:
+                        self.request.sendall(str(data_len).encode())
+                        sendflag = self.request.recv(1024).decode()
+                        if sendflag != 'f':
+                            self.request.sendall(data)
+                            sendflag = self.request.recv(1024).decode()
+                    if sendflag != 's':                       
+                        serv_logger.debug(f'{app} request [{indata}] failed')
+                        self.request.sendall('f'.encode())
+                    else:
+                        serv_logger.debug(f'{app} request [{indata}] done')
+                        self.request.sendall('s'.encode())
                 else:
                     db.dbHandler(indata)
                     if db.db_error:
