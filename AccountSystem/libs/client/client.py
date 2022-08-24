@@ -15,6 +15,8 @@ class clientHandler:
     def setTodayMenu(self, df):
         self.sock.sendall('Clear TodayMenu'.encode('utf-8'))
         self.sock.recv(1024)
+        self.sock.sendall('Clear TodayRecord'.encode('utf-8'))
+        self.sock.recv(1024)
         for index, item in df.iterrows():
             self.sock.sendall(('setTodayMenu %s %s %s' % (item['StoreName'], item['ItemName'], item['price'])).encode('utf-8'))
             self.sock.recv(1024)
