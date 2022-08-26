@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>setPage</class>
  <widget class="QWidget" name="setPage">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -51,10 +54,10 @@
   <widget class="QScrollArea" name="option_input_area">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>50</x>
      <y>165</y>
-     <width>402</width>
-     <height>567</height>
+     <width>502</width>
+     <height>517</height>
     </rect>
    </property>
    <property name="widgetResizable">
@@ -65,8 +68,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>400</width>
-      <height>565</height>
+      <width>500</width>
+      <height>515</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -112,9 +115,9 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>750</y>
+     <y>725</y>
      <width>100</width>
-     <height>30</height>
+     <height>35</height>
     </rect>
    </property>
    <property name="font">
@@ -130,9 +133,9 @@
   <widget class="QWidget" name="scroll_navigater" native="true">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>50</x>
      <y>135</y>
-     <width>400</width>
+     <width>500</width>
      <height>30</height>
     </rect>
    </property>
@@ -186,7 +189,67 @@
     </item>
    </layout>
   </widget>
-  <widget class="QFontComboBox" name="favoStore_comboBox">
+  <widget class="QPushButton" name="prevMenu_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>725</y>
+     <width>150</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>微軟正黑體</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>套用上次菜單</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="fav_confirm_Button">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>90</y>
+     <width>100</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>微軟正黑體</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>確認</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="add_fav_PushButton">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>725</y>
+     <width>150</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>微軟正黑體</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>加到常用菜單</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="favoStore_comboBox">
    <property name="geometry">
     <rect>
      <x>100</x>
@@ -201,27 +264,11 @@
      <pointsize>12</pointsize>
     </font>
    </property>
+   <property name="editable">
+    <bool>true</bool>
+   </property>
    <property name="currentText">
-    <string>常用店家</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>90</y>
-     <width>120</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>上次菜單</string>
+    <string>-----常用菜單-----</string>
    </property>
   </widget>
  </widget>

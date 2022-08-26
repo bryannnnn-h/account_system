@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>40</height>
+    <width>500</width>
+    <height>51</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -88,6 +88,7 @@
          </property>
          <property name="font">
           <font>
+           <family>微軟正黑體</family>
            <pointsize>18</pointsize>
           </font>
          </property>
@@ -109,6 +110,7 @@
          </property>
          <property name="font">
           <font>
+           <family>微軟正黑體</family>
            <pointsize>12</pointsize>
           </font>
          </property>
@@ -124,6 +126,7 @@
          </property>
          <property name="font">
           <font>
+           <family>微軟正黑體</family>
            <pointsize>20</pointsize>
           </font>
          </property>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'adding_unit.ui'
+# Form implementation generated from reading ui file './ui/adding_unit.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.3
 #
@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_option_unit(object):
     def setupUi(self, option_unit):
         option_unit.setObjectName("option_unit")
-        option_unit.resize(400, 40)
+        option_unit.resize(500, 51)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -50,6 +50,7 @@ class Ui_option_unit(object):
         sizePolicy.setHeightForWidth(self.option_lineEdit.sizePolicy().hasHeightForWidth())
         self.option_lineEdit.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
         font.setPointSize(18)
         self.option_lineEdit.setFont(font)
         self.option_lineEdit.setObjectName("option_lineEdit")
@@ -62,6 +63,7 @@ class Ui_option_unit(object):
         self.price_lineEdit.setSizePolicy(sizePolicy)
         self.price_lineEdit.setSizeIncrement(QtCore.QSize(0, 0))
         font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
         font.setPointSize(12)
         self.price_lineEdit.setFont(font)
         self.price_lineEdit.setObjectName("price_lineEdit")
@@ -73,6 +75,7 @@ class Ui_option_unit(object):
         sizePolicy.setHeightForWidth(self.add_Button.sizePolicy().hasHeightForWidth())
         self.add_Button.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
         font.setPointSize(20)
         self.add_Button.setFont(font)
         self.add_Button.setObjectName("add_Button")
