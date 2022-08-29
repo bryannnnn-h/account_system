@@ -4,15 +4,13 @@ from call_orderItem import OrderItem
 import pandas as pd
 
 class OrderSystem(QWidget, Ui_orderSystem):
-    def __init__(self, client, itemCount=1, storeName="無", itemNameList=["無"], priceList=[0]):
+    def __init__(self, client):
         super(OrderSystem, self).__init__()
         self.setupUi(self)
         self.client = client
-        self.itemCount = itemCount
-        self.storeName = storeName
-        self.itemNameList = itemNameList
-        self.priceList = priceList
         self.OrderItemList = []
+        self.todayMenu = self.client.getTodayMenu()
+        self.itemCount = len(self.todayMenu.index)
         self.nameList = self.client.getNameList()
         self.initUI()
     
@@ -20,9 +18,9 @@ class OrderSystem(QWidget, Ui_orderSystem):
         self.orderSystem_stackedWidget.setCurrentWidget(self.nameInput_page)
         self.nameInput_lineEdit.clear()
         self.studentName_label.clear() 
-        self.storeName_label.setText(self.storeName)
+        self.storeName_label.setText(self.todayMenu.at[0, 'StoreName'])
         for i in range(self.itemCount):
-            self.add_OrderItem(self.itemNameList[i], self.priceList[i])
+            self.add_OrderItem(self.todayMenu.at[i, 'ItemName'], int(self.todayMenu.at[i, 'price']))
         self.nameInputConfirm_pushButton.clicked.connect(self.nameInputConfirm)        
         self.orderConfirm_pushButton.clicked.connect(self.orderConfirm)
     
@@ -36,6 +34,11 @@ class OrderSystem(QWidget, Ui_orderSystem):
         if student_name in self.nameList:
             self.orderSystem_stackedWidget.setCurrentWidget(self.order_page)
             self.studentName_label.setText(self.nameInput_lineEdit.text())
+            orderRecord = self.client.getTodayOrderRecordbyName(student_name)
+            if not orderRecord.empty:
+                for item in any(item.ItemName in orderRecord['ItemName'] for item in self.OrderItemList):
+                    item.amount_spinBox.setValue(0)
+                    
         else:
             QMessageBox.warning(None, '警告', f'找不到"{student_name}"，請確認姓名是否輸入正確')
 
@@ -49,7 +52,10 @@ class OrderSystem(QWidget, Ui_orderSystem):
             if item.amount_spinBox.value() > 0:
                 orderRecord = pd.concat([orderRecord, pd.DataFrame({"StudentName":[StudentName], "ItemName":[item.itemName], "price":[item.price], "amount":[item.amount_spinBox.value()], "TotalPrice":[item.price_label.text()]})], ignore_index=True)
                 item.amount_spinBox.setValue(0)
-        self.client.saveTodayOrder(orderRecord)
+        #self.client.setTodayOrder(orderRecord)
         self.orderSystem_stackedWidget.setCurrentWidget(self.nameInput_page)
+    
+    
+
         
         

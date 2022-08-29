@@ -46,7 +46,7 @@ class Ui_orderItem(object):
         self.amount_spinBox.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
-        font.setPointSize(12)
+        font.setPointSize(11)
         self.amount_spinBox.setFont(font)
         self.amount_spinBox.setAutoFillBackground(False)
         self.amount_spinBox.setObjectName("amount_spinBox")

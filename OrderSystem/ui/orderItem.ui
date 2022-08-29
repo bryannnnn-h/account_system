@@ -81,7 +81,7 @@
      <property name="font">
       <font>
        <family>微軟正黑體</family>
-       <pointsize>12</pointsize>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="autoFillBackground">
