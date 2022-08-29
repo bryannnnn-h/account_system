@@ -23,18 +23,21 @@ class client_orderSystem():
         MenuArray = self.getDatafromServer('Fetch TodayMenu StoreName ItemName price')
         if MenuArray.size != 0:
             todayMenu = pd.DataFrame(MenuArray, columns=['StoreName', 'ItemName', 'price'])
+            storeName = todayMenu.at[0, 'StoreName']
+            todayMenu = todayMenu[['ItemName','price']]
         else:
-            todayMenu = pd.DataFrame({'StoreName':['無'], 'ItemName':['無'], 'price':[0]})
-        return todayMenu
+            todayMenu = pd.DataFrame({'ItemName':['無'], 'price':[0]})
+            storeName = '無'
+        return storeName, todayMenu
 
     def getNameList(self):
-        nameList = self.getDatafromServer('Fetch basic_info name')
+        nameList = self.getDatafromServer('Fetch basic_info name').squeeze()
         return nameList
     
     def getTodayOrderRecordbyName(self, name):
         orderRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName amount:StudentName ("{name}")')
         if orderRecordArray.size != 0:
-            orderRecord = pd.DataFrame(orderRecordArray, columns=['ItemName', 'amount'])
+            orderRecord = pd.DataFrame(orderRecordArray, columns=['ItemName', 'amount']).set_index('ItemName')
         else:
             orderRecord = pd.DataFrame()
         return orderRecord
@@ -57,8 +60,7 @@ class client_orderSystem():
                     data = self.sock.recv(1024)
                     recv_len += len(data)
                     recv_data += data
-                recv_data = pickle.loads(recv_data)
-                data_container = recv_data.squeeze()
+                data_container = pickle.loads(recv_data)
                 self.sock.sendall('s'.encode())
             except Exception as ex:
                 self.sock.sendall(str(ex).encode())
@@ -69,10 +71,26 @@ class client_orderSystem():
 
         return data_container
     
-    def setTodayOrder(self, orderRecord):
-        sql_msg = "set TodayOrder "
-        for index, item in orderRecord.iterrows():
-            row = f'("StudentName", "ItemName", "price", "amount", "TotalPrice")'
+    def setTodayRecord(self, order):
+        set_msg = "set TodayRecord (StoreName,StudentName,ItemName,price,amount,TotalPrice) "
+        for index, item in order.iterrows():
+            set_msg += f'(\"{item["StoreName"]}\",\"{item["StudentName"]}\",\"{item["ItemName"]}\",{int(item["price"])},{int(item["amount"])},{int(item["TotalPrice"])}),'
+        self.setDataByServer(set_msg)
+    
+    def deleteTodayRecord(self, name):
+        delete_msg = f'Delete TodayRecord:StudentName ("{name}")'
+        self.setDataByServer(delete_msg) 
+
+    def setDataByServer(self, setDataMsg):
+        self.sock.sendall('SetData'.encode())
+        setDataMsg = setDataMsg.encode()
+        byte_len = struct.pack("i", len(setDataMsg))            
+        self.sock.sendall(byte_len)
+        self.sock.sendall(setDataMsg)
+        if self.sock.recv(1024).decode() == 'f':
+            self.client_error = 'f'
+        if self.sock.recv(1024).decode() == 'f':
+            self.client_error = 'f'
         
 
 
