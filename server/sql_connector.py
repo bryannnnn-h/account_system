@@ -70,8 +70,6 @@ class db_connecter:
             if instrcution_label == "set": 
                 setTable, setcol, setValue = instruction_content.split(' ') 
                 sqlCommand = f'INSERT INTO {setTable} {setcol} VALUES {setValue}'[:-1]
-                
-                print(sqlCommand)
                 self.db_cursor.execute(sqlCommand)
                 self.conn.commit()
 
@@ -108,6 +106,31 @@ class db_connecter:
                 self.db_cursor.execute("TRUNCATE TABLE %s" % (clearTable))
                 self.conn.commit()
             
+            elif instrcution_label == "Delete":
+                #'del_table:del_column1 (del_val1,delval2,...)&del_column2 (del_val1,delval2,...)&...'
+                if ':' in instruction_content: 
+                    del_table, del_cond = instruction_content.split(':')
+                else:
+                    del_table = instruction_content
+                    del_cond = ''
+                del_condition_msg = ''
+                if len(del_cond) > 0:
+                    del_cond_list = []
+                    if '&' in del_cond:
+                        del_cond_list = del_cond.split('&')
+                    else:
+                        del_cond_list.append(del_cond)
+                    del_condition_msg += ' WHERE '
+                    for i in del_cond_list:
+                        column, val = i.split(' ')
+                        del_condition_msg += column
+                        del_condition_msg += ' IN '
+                        del_condition_msg += val
+                        if i != del_cond_list[-1]:
+                            del_condition_msg += ' AND '
+                self.db_cursor.execute(f'DELETE FROM {del_table}{del_condition_msg}')
+                self.conn.commit()
+
             self.db_logger.debug(f'{instruction} success')
         except Exception as ex:
             self.db_error = ex
