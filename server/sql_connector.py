@@ -6,7 +6,7 @@ db_settings = {
     "host": "127.0.0.1",
     "port": 3306,
     "user": "root",
-    "password": "bayern2000",
+    "password": "4499tttt6688",
     "charset": "utf8mb4"
 }
 
@@ -77,8 +77,29 @@ class db_connecter:
 
             elif instrcution_label == "Fetch":
                 fetch_table = instruction_content.split(' ')[0]
-                fetch_column = ','.join(instruction_content.split(' ')[1:])
-                self.db_cursor.execute(f'SELECT {fetch_column} FROM {fetch_table}')
+                instruction_content = ' '.join(instruction_content.split(' ')[1:])
+                if ':' in instruction_content:
+                    fetch_column, fetch_condition = instruction_content.split(':')
+                else:
+                    fetch_column = instruction_content
+                    fetch_condition = ''
+                fetch_column = ','.join(fetch_column.split(' '))
+                fetch_condition_msg = ''
+                if len(fetch_condition) > 0:
+                    fetch_condition_list = []
+                    if '&' in fetch_condition:
+                        fetch_condition_list = fetch_condition.split('&')
+                    else:
+                        fetch_condition_list.append(fetch_condition)
+                    fetch_condition_msg += ' WHERE '
+                    for i in fetch_condition_list:
+                        column, cond = i.split(' ')
+                        fetch_condition_msg += column
+                        fetch_condition_msg += ' IN '
+                        fetch_condition_msg += cond
+                        if i != fetch_condition_list[-1]:
+                            fetch_condition_msg += ' AND '
+                self.db_cursor.execute(f'SELECT {fetch_column} FROM {fetch_table}{fetch_condition_msg}')
                 result = np.array(self.db_cursor.fetchall())
                 return result
 
