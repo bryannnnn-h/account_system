@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/orderSystem.ui'
+# Form implementation generated from reading ui file '.\ui\orderSystem.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.3
 #
@@ -140,20 +140,20 @@ class Ui_orderSystem(object):
         self.studentName_widget.setObjectName("studentName_widget")
         self.studentNameTag_label = QtWidgets.QLabel(self.studentName_widget)
         self.studentNameTag_label.setEnabled(True)
-        self.studentNameTag_label.setGeometry(QtCore.QRect(0, 0, 100, 50))
+        self.studentNameTag_label.setGeometry(QtCore.QRect(0, 0, 150, 50))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(20)
         self.studentNameTag_label.setFont(font)
-        self.studentNameTag_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.studentNameTag_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.studentNameTag_label.setObjectName("studentNameTag_label")
         self.studentName_label = QtWidgets.QLabel(self.studentName_widget)
-        self.studentName_label.setGeometry(QtCore.QRect(100, 0, 300, 50))
+        self.studentName_label.setGeometry(QtCore.QRect(250, 0, 200, 50))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(20)
         self.studentName_label.setFont(font)
-        self.studentName_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.studentName_label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.studentName_label.setObjectName("studentName_label")
         self.orderConfirm_pushButton = QtWidgets.QPushButton(self.order_page)
         self.orderConfirm_pushButton.setGeometry(QtCore.QRect(151, 730, 100, 30))
