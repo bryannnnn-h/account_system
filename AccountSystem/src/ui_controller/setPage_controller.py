@@ -68,8 +68,12 @@ class setPage_controller(QtWidgets.QWidget, Ui_setPage):
          self.fav_confirm_Button.setEnabled(True)
       else:
          self.fav_confirm_Button.setEnabled(False)
+
+
    def setFavMenu(self):
       pass
+
+   
    def addFavMenu(self):
       dialog = QtWidgets.QInputDialog(None)
       font = QtGui.QFont()

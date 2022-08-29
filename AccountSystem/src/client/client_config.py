@@ -1,1 +1,1 @@
-IP, PORT = "localhost", 7000
+IP, PORT = "127.0.0.1", 7000
