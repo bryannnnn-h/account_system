@@ -3,6 +3,7 @@ import os, sys, msvcrt, pickle
 import threading
 import logging
 from sql_connector import db_connecter
+import struct
 
 class MyTCPServer(TCPServer):
     def __init__(self, server_address, RequestHandler, bind_and_activate=True):
@@ -56,16 +57,18 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
             self.server.closeServer()
         while True:
             try:                
-                indata = self.request.recv(1024).strip().decode('utf-8')
+                indata = self.request.recv(7).strip().decode('utf-8')
                 if len(indata) == 0: 
                     self.request.close()
                     serv_logger.debug(f'{app} closed connection.')
                     serv_logger.debug(f'{cur.name} is closed')
                     break
                 serv_logger.debug(f'{app} request: {indata}')
-                self.request.sendall('s'.encode())
+                #self.request.sendall('s'.encode())
                 if indata == 'GetData':
-                    indata = self.request.recv(1024).strip().decode('utf-8')
+                    bytes_len = self.request.recv(4)
+                    msg_len = struct.unpack('i',bytes_len)[0]
+                    indata = self.request.recv(msg_len).strip().decode('utf-8')
                     data = db.dbHandler(indata)
                     if db.db_error:
                         serv_logger.error(f"[{indata}] by [{app}] fail. Please close and restart server after solving problems.\nPress any keys to close...")
@@ -76,14 +79,15 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
                     data_len = len(data)
                     if data_len == 0:
                         serv_logger.debug(f'{indata} gets nothing')
-                        self.request.sendall('empty'.encode())
+                        self.request.sendall('none'.encode())
                         sendflag = self.request.recv(1024).decode()
                     else:
-                        self.request.sendall(str(data_len).encode())
+                        data_len = struct.pack('i',len(data))
+                        self.request.sendall(data_len)
+                        #sendflag = self.request.recv(1024).decode()
+                        #if sendflag != 'f':
+                        self.request.sendall(data)
                         sendflag = self.request.recv(1024).decode()
-                        if sendflag != 'f':
-                            self.request.sendall(data)
-                            sendflag = self.request.recv(1024).decode()
                     if sendflag != 's':                       
                         serv_logger.debug(f'{app} request [{indata}] failed')
                         self.request.sendall('f'.encode())
