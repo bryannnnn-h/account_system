@@ -96,22 +96,21 @@ class ThreadedTCPRequestHandler(BaseRequestHandler):
                         self.request.sendall('s'.encode())
 
                 elif indata == 'SetData':
-                    data_len = self.request.recv(1024).strip().decode()
-                    recv_data = ''
-                    if data_len != 'empty':
+                    data_len = self.request.recv(4)
+                    data_len = struct.unpack('i',data_len)[0]
+                    recv_data = b''
+
+                    #self.request.sendall('s'.encode())
+                    try:
+                        recv_len = 0
+                        while recv_len < data_len:
+                            data = self.request.recv(1024)
+                            recv_len += len(data)
+                            recv_data += data
+                        recv_data = recv_data.decode()
                         self.request.sendall('s'.encode())
-                        try:
-                            data_len = int(data_len)
-                            recv_len = 0
-                            while recv_len < data_len:
-                                data = self.request.recv(1024).decode()
-                                recv_len += len(data)
-                                recv_data += data
-                            self.request.sendall('s'.encode())
-                        except Exception as ex:
-                            self.request.sendall(str(ex).encode())
-                    else:
-                        self.request.sendall('f'.encode())
+                    except Exception as ex:
+                        self.request.sendall(str(ex).encode())
 
 
                     db.dbHandler(recv_data)
