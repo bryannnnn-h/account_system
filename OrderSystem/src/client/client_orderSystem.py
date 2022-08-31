@@ -26,7 +26,7 @@ class client_orderSystem():
             storeName = todayMenu.at[0, 'StoreName']
             todayMenu = todayMenu[['ItemName','price']]
         else:
-            todayMenu = pd.DataFrame({'ItemName':['無'], 'price':[0]})
+            todayMenu = pd.DataFrame()
             storeName = '無'
         return storeName, todayMenu
 

@@ -23,8 +23,11 @@ class OrderSystem(QWidget, Ui_orderSystem):
         for i in range(self.itemCount):
             self.add_OrderItem(self.todayMenu.at[i, 'ItemName'], int(self.todayMenu.at[i, 'price']))
         '''
-        for index, item in self.todayMenu.iterrows():
-            self.add_OrderItem(index, item['ItemName'], int(item['price']))
+        if self.todayMenu.empty:
+            QMessageBox.warning(None, '警告', f'尚未設定今日菜單，請前往設定')
+        else:
+            for index, item in self.todayMenu.iterrows():
+                self.add_OrderItem(index, item['ItemName'], int(item['price']))
         self.nameInputConfirm_pushButton.clicked.connect(self.nameInputConfirm)        
         self.orderConfirm_pushButton.clicked.connect(self.orderConfirm)
     
@@ -43,6 +46,8 @@ class OrderSystem(QWidget, Ui_orderSystem):
                 for item in self.OrderItemList:
                     if item.itemName in self.orderRecord.index:
                         item.amount_spinBox.setValue(int(self.orderRecord.at[item.itemName,'amount']))
+            if self.todayMenu.empty:
+                QMessageBox.warning(None, '警告', f'尚未設定今日菜單，請前往設定')
                     
         else:
             QMessageBox.warning(None, '警告', f'找不到"{student_name}"，請確認姓名是否輸入正確')
@@ -59,7 +64,8 @@ class OrderSystem(QWidget, Ui_orderSystem):
                 item.amount_spinBox.setValue(0)
         if not self.orderRecord.empty:
             self.client.deleteTodayRecord(StudentName)
-        self.client.setTodayRecord(order)
+        if not order.empty:
+            self.client.setTodayRecord(order)
         self.orderSystem_stackedWidget.setCurrentWidget(self.nameInput_page)
     
     
