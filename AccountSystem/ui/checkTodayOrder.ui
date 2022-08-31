@@ -97,7 +97,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QLabel" name="storeName_laebl">
+  <widget class="QLabel" name="storeName_label">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -128,7 +128,7 @@
      <height>41</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="12,3,2,3">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="12,3,2,4">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -198,7 +198,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="totalPrice_laebl">
+  <widget class="QLabel" name="totalPrice_label">
    <property name="geometry">
     <rect>
      <x>400</x>

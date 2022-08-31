@@ -189,7 +189,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="prevMenu_pushButton">
+  <widget class="QPushButton" name="returnHomePage_pushButton">
    <property name="geometry">
     <rect>
      <x>400</x>
@@ -205,7 +205,7 @@
     </font>
    </property>
    <property name="text">
-    <string>套用上次菜單</string>
+    <string>返回主選單</string>
    </property>
   </widget>
   <widget class="QPushButton" name="fav_confirm_Button">
