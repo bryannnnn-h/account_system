@@ -25,7 +25,7 @@ class setPage_controller(QtWidgets.QWidget, Ui_setPage):
       self.data = []
       
    def setupComboBox(self):
-      self.favoStore_comboBox.addItems(['-----常用菜單-----', '無', '上次菜單'])
+      self.favoStore_comboBox.addItems(['-----常用菜單-----', '無'])
       self.favoStore_comboBox.setCurrentIndex(0)
       self.favoStore_comboBox.model().item(0).setEnabled(False)
       self.favoStore_comboBox.addItems(list(self.client.getFavNameList()))
