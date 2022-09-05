@@ -18,9 +18,19 @@ class client_orderSystem():
         if receive_signal != 's':
             client_error = receive_signal
         return sock, client_error
-    
-    def getTodayMenu(self):
-        MenuArray = self.getDatafromServer('Fetch TodayMenu StoreName ItemName price')
+    def getMenuDate(self):
+        get_msg = f'Fetch MenuRecord Year Month Day:isSelected (True)'
+        date = self.getDatafromServer(get_msg)
+        if date.size != 0:
+            y,m,d = date.squeeze()
+            date = '-'.join([str(y),str(m),str(d)])
+        else:
+            date = '2022-1-1'
+        return date
+
+    def getTodayMenu(self, date):
+        y, m, d = date.split('-')
+        MenuArray = self.getDatafromServer(f'Fetch MenuDetail StoreName ItemName price:Year ({y})&Month ({m})&Day ({d})')
         if MenuArray.size != 0:
             todayMenu = pd.DataFrame(MenuArray, columns=['StoreName', 'ItemName', 'price'])
             storeName = todayMenu.at[0, 'StoreName']
@@ -72,9 +82,9 @@ class client_orderSystem():
         return data_container
     
     def setTodayRecord(self, order):
-        set_msg = "set TodayRecord (StoreName,StudentName,ItemName,price,amount,TotalPrice) "
+        set_msg = "set TodayRecord (Year,Month,Day,StoreName,StudentName,ItemName,price,amount,TotalPrice) "
         for index, item in order.iterrows():
-            set_msg += f'(\"{item["StoreName"]}\",\"{item["StudentName"]}\",\"{item["ItemName"]}\",{int(item["price"])},{int(item["amount"])},{int(item["TotalPrice"])}),'
+            set_msg += f'(\"{int(item["Year"])}\",\"{int(item["Month"])}\",\"{int(item["Day"])}\",\"{item["StoreName"]}\",\"{item["StudentName"]}\",\"{item["ItemName"]}\",{int(item["price"])},{int(item["amount"])},{int(item["TotalPrice"])}),'
         self.setDataByServer(set_msg)
     
     def deleteTodayRecord(self, name):
