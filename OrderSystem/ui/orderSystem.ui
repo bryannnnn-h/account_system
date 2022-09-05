@@ -28,14 +28,14 @@
   <widget class="QStackedWidget" name="orderSystem_stackedWidget">
    <property name="geometry">
     <rect>
-     <x>99</x>
-     <y>19</y>
+     <x>110</x>
+     <y>0</y>
      <width>402</width>
      <height>762</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="nameInput_page">
     <widget class="QWidget" name="nameInput_widget" native="true">
@@ -67,25 +67,6 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="nameInput_lineEdit">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>0</y>
-        <width>300</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>微軟正黑體</family>
-        <pointsize>20</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>輸入姓名</string>
       </property>
      </widget>
     </widget>
@@ -332,7 +313,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>150</width>
+        <width>200</width>
         <height>50</height>
        </rect>
       </property>
@@ -346,13 +327,13 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;姓名&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="studentName_label">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>200</x>
         <y>0</y>
         <width>200</width>
         <height>50</height>
@@ -368,7 +349,7 @@
        <string>王小明</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </widget>
