@@ -53,7 +53,8 @@ class setPage_controller(QtWidgets.QWidget, Ui_setPage):
             pd.DataFrame({'StoreName':[store_name], 'ItemName':[item.option_label.text()], 'price':[item.price_label.text()]})], 
             ignore_index=True)
       if not RecordData.empty:
-         self.client.setTodayMenu(RecordData)
+         self.client.setMenuDetail(RecordData)
+         self.client.setMenuRecord(store_name)
          self.client.deleteFavMenu('上次菜單')
          self.saveFavtoDB('上次菜單')
 

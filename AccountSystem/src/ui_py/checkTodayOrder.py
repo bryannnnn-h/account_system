@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './ui/checkTodayOrder.ui'
+# Form implementation generated from reading ui file '.\ui\checkTodayOrder.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.3
 #
@@ -17,7 +17,7 @@ class Ui_TodayRecord(object):
         TodayRecord.setMinimumSize(QtCore.QSize(600, 800))
         TodayRecord.setMaximumSize(QtCore.QSize(600, 800))
         self.label = QtWidgets.QLabel(TodayRecord)
-        self.label.setGeometry(QtCore.QRect(0, 0, 600, 100))
+        self.label.setGeometry(QtCore.QRect(200, 0, 200, 100))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(28)
@@ -96,13 +96,13 @@ class Ui_TodayRecord(object):
         self.totalPrice_label.setFont(font)
         self.totalPrice_label.setAlignment(QtCore.Qt.AlignCenter)
         self.totalPrice_label.setObjectName("totalPrice_label")
-        self.Refresh_pushButton = QtWidgets.QPushButton(TodayRecord)
-        self.Refresh_pushButton.setGeometry(QtCore.QRect(180, 720, 100, 40))
+        self.Cancel_pushButton = QtWidgets.QPushButton(TodayRecord)
+        self.Cancel_pushButton.setGeometry(QtCore.QRect(180, 720, 100, 40))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(12)
-        self.Refresh_pushButton.setFont(font)
-        self.Refresh_pushButton.setObjectName("Refresh_pushButton")
+        self.Cancel_pushButton.setFont(font)
+        self.Cancel_pushButton.setObjectName("Cancel_pushButton")
         self.Confirm_pushButton = QtWidgets.QPushButton(TodayRecord)
         self.Confirm_pushButton.setGeometry(QtCore.QRect(320, 720, 100, 40))
         font = QtGui.QFont()
@@ -110,6 +110,22 @@ class Ui_TodayRecord(object):
         font.setPointSize(12)
         self.Confirm_pushButton.setFont(font)
         self.Confirm_pushButton.setObjectName("Confirm_pushButton")
+        self.totalPrice_label_2 = QtWidgets.QLabel(TodayRecord)
+        self.totalPrice_label_2.setGeometry(QtCore.QRect(50, 650, 150, 50))
+        font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
+        font.setPointSize(12)
+        self.totalPrice_label_2.setFont(font)
+        self.totalPrice_label_2.setAlignment(QtCore.Qt.AlignCenter)
+        self.totalPrice_label_2.setObjectName("totalPrice_label_2")
+        self.Refresh_pushButton = QtWidgets.QPushButton(TodayRecord)
+        self.Refresh_pushButton.setGeometry(QtCore.QRect(420, 35, 101, 30))
+        font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
+        font.setPointSize(12)
+        self.Refresh_pushButton.setFont(font)
+        self.Refresh_pushButton.setStyleSheet("")
+        self.Refresh_pushButton.setObjectName("Refresh_pushButton")
 
         self.retranslateUi(TodayRecord)
         QtCore.QMetaObject.connectSlotsByName(TodayRecord)
@@ -124,5 +140,7 @@ class Ui_TodayRecord(object):
         self.label_5.setText(_translate("TodayRecord", "數量"))
         self.label_6.setText(_translate("TodayRecord", "總價"))
         self.totalPrice_label.setText(_translate("TodayRecord", "總額"))
+        self.Cancel_pushButton.setText(_translate("TodayRecord", "取消訂單"))
+        self.Confirm_pushButton.setText(_translate("TodayRecord", "完成訂單"))
+        self.totalPrice_label_2.setText(_translate("TodayRecord", "人數"))
         self.Refresh_pushButton.setText(_translate("TodayRecord", "重新整理"))
-        self.Confirm_pushButton.setText(_translate("TodayRecord", "確認"))

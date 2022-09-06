@@ -22,6 +22,7 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
         for index, item in itemGroup.iterrows():
             self.addRecord(index, item['ItemName'], item['price'], item['amount'], item['TotalPrice'])
         self.Confirm_pushButton.clicked.connect(self.returnHomePage)
+        self.Confirm_pushButton.clicked.connect(self.orderComplete)
         self.totalPrice_label.setText('總計：' + str(self.sumOfTotalPrice()))
 
 
@@ -38,3 +39,6 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
     def returnHomePage(self):
         self.close()
         self.HomePage.show()
+    
+    def orderComplete(self):
+        pass

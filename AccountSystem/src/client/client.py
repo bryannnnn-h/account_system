@@ -13,14 +13,18 @@ class clientHandler:
         self.sock.sendall('accountSystem'.encode())
         self.sock.recv(1024)
 
-    def setTodayMenu(self, df):
-        self.setDataByServer('Clear TodayMenu')
-
-        todayMsg = 'set TodayMenu (StoreName,ItemName,price) '
+    def setMenuDetail(self, df):
+        y, m, d = 2022,9,2
+        self.setDataByServer(f'Delete MenuDetail:Year ({y})&Month ({m})&Day ({d})')
+        todayMsg = 'set MenuDetail (Year,Month,Day,StoreName,ItemName,price) '
         for index, item in df.iterrows():
-            todayMsg += f'(\"{item["StoreName"]}\",\"{item["ItemName"]}\",{int(item["price"])}),'
+            todayMsg += f'({y},{m},{d},\"{item["StoreName"]}\",\"{item["ItemName"]}\",{int(item["price"])}),'
 
         self.setDataByServer(todayMsg)
+    
+    def setMenuRecord(self, storeName):
+        set_msg = f'set MenuRecord (Year,Month,Day,StoreName,isSelected,isCompleted) (2022,9,2,"{storeName}",True,False)'
+        self.setDataByServer(set_msg)
 
     def addFavMenu(self, df):   
         FavMsg = 'set FavMenu (StoreName,FavMenuName,ItemName,price) '
@@ -64,6 +68,11 @@ class clientHandler:
             TodayStoreName = '無'
         return TodayStoreName, TodayRecordContent
 
+    def setOrderComplete(self):
+        set_msg = 'Copy HistoryRecord TodayRecord'
+        self.setDataByServer(set_msg)
+        set_msg = 'Clear TodayRecord'
+        self.setDataByServer(set_msg)
 
     def getDatafromServer(self, msg):
         data_container = np.array([])

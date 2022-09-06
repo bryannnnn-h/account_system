@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './ui/setPage.ui'
+# Form implementation generated from reading ui file '.\ui\setPage.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.3
 #
@@ -108,7 +108,9 @@ class Ui_setPage(object):
         font.setFamily("微軟正黑體")
         font.setPointSize(12)
         self.favoStore_comboBox.setFont(font)
-        self.favoStore_comboBox.setEditable(True)
+        self.favoStore_comboBox.setEditable(False)
+        self.favoStore_comboBox.setCurrentText("")
+        self.favoStore_comboBox.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.favoStore_comboBox.setObjectName("favoStore_comboBox")
 
         self.retranslateUi(setPage)
@@ -124,4 +126,3 @@ class Ui_setPage(object):
         self.returnHomePage_pushButton.setText(_translate("setPage", "返回主選單"))
         self.fav_confirm_Button.setText(_translate("setPage", "確認"))
         self.add_fav_PushButton.setText(_translate("setPage", "加到常用菜單"))
-        self.favoStore_comboBox.setCurrentText(_translate("setPage", "-----常用菜單-----"))
