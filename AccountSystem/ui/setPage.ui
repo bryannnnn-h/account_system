@@ -16,263 +16,362 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="store_name_label">
+  <widget class="QStackedWidget" name="setPage_stackedWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>20</y>
-     <width>100</width>
-     <height>50</height>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>800</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <family>Microsoft JhengHei</family>
-     <pointsize>20</pointsize>
-    </font>
+   <property name="currentIndex">
+    <number>1</number>
    </property>
-   <property name="text">
-    <string>店名</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="store_name_lineEdit">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>20</y>
-     <width>300</width>
-     <height>50</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-  </widget>
-  <widget class="QScrollArea" name="option_input_area">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>165</y>
-     <width>502</width>
-     <height>517</height>
-    </rect>
-   </property>
-   <property name="widgetResizable">
-    <bool>true</bool>
-   </property>
-   <widget class="QWidget" name="scrollAreaWidgetContents">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>500</width>
-      <height>515</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <property name="spacing">
-      <number>5</number>
+   <widget class="QWidget" name="setDate_page">
+    <widget class="QDateEdit" name="date_dateEdit">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>375</y>
+       <width>300</width>
+       <height>50</height>
+      </rect>
      </property>
-     <property name="leftMargin">
-      <number>0</number>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>20</pointsize>
+      </font>
      </property>
-     <property name="topMargin">
-      <number>0</number>
+     <property name="displayFormat">
+      <string>yyyy/M/d</string>
      </property>
-     <property name="rightMargin">
-      <number>0</number>
+     <property name="calendarPopup">
+      <bool>true</bool>
      </property>
-     <property name="bottomMargin">
-      <number>0</number>
+    </widget>
+    <widget class="QLabel" name="dateTag_label">
+     <property name="geometry">
+      <rect>
+       <x>125</x>
+       <y>300</y>
+       <width>350</width>
+       <height>50</height>
+      </rect>
      </property>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>請設定此菜單之日期</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setDate_nextStep_pushButton">
+     <property name="geometry">
+      <rect>
+       <x>325</x>
+       <y>480</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>下一步</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setDate_cancel_pushButton">
+     <property name="geometry">
+      <rect>
+       <x>175</x>
+       <y>480</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>取消</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="setMenu_page">
+    <widget class="QPushButton" name="add_fav_PushButton">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>725</y>
+       <width>150</width>
+       <height>35</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>加到常用菜單</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="confirm_Button">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>725</y>
+       <width>100</width>
+       <height>35</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>確認</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="fav_confirm_Button">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>90</y>
+       <width>100</width>
+       <height>35</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>確認</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="favoStore_comboBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>90</y>
+       <width>270</width>
+       <height>35</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+     <property name="currentText">
+      <string/>
+     </property>
+     <property name="insertPolicy">
+      <enum>QComboBox::NoInsert</enum>
+     </property>
+    </widget>
+    <widget class="QScrollArea" name="option_input_area">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>165</y>
+       <width>502</width>
+       <height>517</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>500</width>
+        <height>515</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
+    <widget class="QPushButton" name="returnHomePage_pushButton">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>725</y>
+       <width>150</width>
+       <height>35</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>返回主選單</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="scroll_navigater" native="true">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>135</y>
+       <width>500</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="7,3">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="option_name_label_2">
+        <property name="text">
+         <string>品項</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="price_label_2">
+        <property name="text">
+         <string>價格</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="store_name_label">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>100</width>
+       <height>50</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Microsoft JhengHei</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>店名</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="store_name_lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>20</y>
+       <width>300</width>
+       <height>50</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+    </widget>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="confirm_Button">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>725</y>
-     <width>100</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>確認</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="scroll_navigater" native="true">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>135</y>
-     <width>500</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,3">
-    <property name="spacing">
-     <number>5</number>
-    </property>
-    <property name="leftMargin">
-     <number>5</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>5</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QLabel" name="option_name_label">
-      <property name="text">
-       <string>品項</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="price_label">
-      <property name="text">
-       <string>價格</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QPushButton" name="returnHomePage_pushButton">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>725</y>
-     <width>150</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>返回主選單</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="fav_confirm_Button">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>90</y>
-     <width>100</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>確認</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="add_fav_PushButton">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>725</y>
-     <width>150</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>加到常用菜單</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="favoStore_comboBox">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>90</y>
-     <width>270</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>微軟正黑體</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="editable">
-    <bool>false</bool>
-   </property>
-   <property name="currentText">
-    <string/>
-   </property>
-   <property name="insertPolicy">
-    <enum>QComboBox::NoInsert</enum>
-   </property>
   </widget>
  </widget>
  <resources/>
