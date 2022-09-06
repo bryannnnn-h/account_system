@@ -1,14 +1,7 @@
 import pymysql
 import logging
 import numpy as np
-
-db_settings = {
-    "host": "127.0.0.1",
-    "port": 3306,
-    "user": "root",
-    "password": "4499tttt6688",
-    "charset": "utf8mb4"
-}
+from db_settings import db_settings
 
 class db_connecter:
     def __init__(self):
