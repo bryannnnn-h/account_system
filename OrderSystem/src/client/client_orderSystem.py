@@ -22,7 +22,8 @@ class client_orderSystem():
         get_msg = f'Fetch MenuRecord Year Month Day:isSelected (True)'
         date = self.getDatafromServer(get_msg)
         if date.size != 0:
-            y,m,d = date.squeeze()
+            date = date.squeeze()
+            y,m,d = date
             date = '-'.join([str(y),str(m),str(d)])
         else:
             date = '2022-1-1'
