@@ -6,3 +6,4 @@ dist
 test.py
 client_config.py
 server_config.py
+db_settings.py
