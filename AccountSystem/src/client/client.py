@@ -13,8 +13,7 @@ class clientHandler:
         self.sock.sendall('accountSystem'.encode())
         self.sock.recv(1024)
 
-    def setMenuDetail(self, df):
-        y, m, d = 2022,9,2
+    def setMenuDetail(self, y, m, d, df):
         self.setDataByServer(f'Delete MenuDetail:Year ({y})&Month ({m})&Day ({d})')
         todayMsg = 'set MenuDetail (Year,Month,Day,StoreName,ItemName,price) '
         for index, item in df.iterrows():
@@ -22,8 +21,9 @@ class clientHandler:
 
         self.setDataByServer(todayMsg)
     
-    def setMenuRecord(self, storeName):
-        set_msg = f'set MenuRecord (Year,Month,Day,StoreName,isSelected,isCompleted) (2022,9,2,"{storeName}",True,False)'
+    def setMenuRecord(self, y, m, d, storeName):
+        self.setDataByServer(f'Delete MenuRecord:Year ({y})&Month ({m})&Day ({d})')
+        set_msg = f'set MenuRecord (Year,Month,Day,StoreName,isSelected,isCompleted) ({y},{m},{d},"{storeName}",False,False)'
         self.setDataByServer(set_msg)
 
     def addFavMenu(self, df):   
@@ -73,6 +73,33 @@ class clientHandler:
         self.setDataByServer(set_msg)
         set_msg = 'Clear TodayRecord'
         self.setDataByServer(set_msg)
+    def checkTodayRecordbyDate(self, date):
+        y, m, d = date.split('-')
+        get_msg = f'Fetch TodayRecord StoreName:Year ({y})&Month ({m})&Day ({d})'
+        storeNameArray = self.getDatafromServer(get_msg)
+        if storeNameArray.size != 0:
+            storeName = np.unique(storeNameArray.squeeze()).squeeze()
+        else:
+            storeName = ''
+        return storeName
+    def checkMenuRecordbyDate(self, date):
+        y, m, d = date.split('-')
+        get_msg = f'Fetch MenuRecord StoreName:Year ({y})&Month ({m})&Day ({d})'
+        storeNameArray = self.getDatafromServer(get_msg)
+        if storeNameArray.size != 0:
+            storeName = np.unique(storeNameArray.squeeze()).squeeze()
+        else:
+            storeName = ''
+        return storeName
+    def getMenuDetailbyDate(self, date):
+        y, m, d = date.split('-')
+        get_msg = f'Fetch MenuDetail StoreName ItemName price:Year ({y})&Month ({m})&Day ({d})'
+        menuArray = self.getDatafromServer(get_msg)
+        if menuArray.size != 0:
+            MenuContent = pd.DataFrame(menuArray, columns=['StoreName', 'ItemName', 'price'])
+        else:
+            MenuContent = pd.DataFrame()
+        return MenuContent
 
     def getDatafromServer(self, msg):
         data_container = np.array([])
@@ -105,7 +132,9 @@ class clientHandler:
 
     def deleteFavMenu(self,name):
         delete_msg = f'Delete FavMenu:FavMenuName ("{name}")'
-        self.setDataByServer(delete_msg) 
+        self.setDataByServer(delete_msg)
+    
+    
 
 
 
