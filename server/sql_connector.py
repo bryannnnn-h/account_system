@@ -25,9 +25,10 @@ class db_connecter:
                 self.db_cursor.execute('CREATE DATABASE IF NOT EXISTS ernies_db DEFAULT CHARACTER SET utf8mb4')
                 self.db_cursor.execute('USE ernies_db')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS basic_info (id INT, name VARCHAR(20), grade INT, program VARCHAR(20), price INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayMenu (StoreName VARCHAR(20), ItemName VARCHAR(20), price INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (date VARCHAR(20), time VARCHAR(20), StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuDetail (Year INT, Month INT, Day INT, StoreName VARCHAR(20), ItemName VARCHAR(20), price INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20), isSelected BOOL, isCompleted BOOL)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS FavMenu (StoreName VARCHAR(20), FavMenuName VARCHAR(20), ItemName VARCHAR(20), price INT)')
             except Exception as ex:
                 self.closeDB()
@@ -69,11 +70,14 @@ class db_connecter:
         try:
             if instrcution_label == "set": 
                 setTable, setcol, setValue = instruction_content.split(' ') 
-                sqlCommand = f'INSERT INTO {setTable} {setcol} VALUES {setValue}'[:-1]
+                sqlCommand = f'INSERT INTO {setTable} {setcol} VALUES {setValue}'
+                if sqlCommand[-1] == ',':
+                    sqlCommand = sqlCommand[:-1]
                 self.db_cursor.execute(sqlCommand)
                 self.conn.commit()
 
             elif instrcution_label == "Fetch":
+                #'Fetch_Table Fetch_ColumnA Fetch_ColumnB ...:cond_columnA (condA)&cond_columnB (condB)&...'
                 fetch_table = instruction_content.split(' ')[0]
                 instruction_content = ' '.join(instruction_content.split(' ')[1:])
                 if ':' in instruction_content:
@@ -97,6 +101,7 @@ class db_connecter:
                         fetch_condition_msg += cond
                         if i != fetch_condition_list[-1]:
                             fetch_condition_msg += ' AND '
+                print(f'SELECT {fetch_column} FROM {fetch_table}{fetch_condition_msg}')
                 self.db_cursor.execute(f'SELECT {fetch_column} FROM {fetch_table}{fetch_condition_msg}')
                 result = np.array(self.db_cursor.fetchall())
                 return result
@@ -129,6 +134,18 @@ class db_connecter:
                         if i != del_cond_list[-1]:
                             del_condition_msg += ' AND '
                 self.db_cursor.execute(f'DELETE FROM {del_table}{del_condition_msg}')
+                self.conn.commit()
+            elif instrcution_label == 'Copy':
+                target, source = instruction_content.split(' ')
+                target_table = target 
+                target_column = ''
+                source_table = source 
+                source_column = '*'
+                if ':' in target:
+                    target_table, target_column = target.split(':')
+                if ':' in source:
+                    source_table, source_column = source.split(':')
+                self.db_cursor.execute(f'INSERT {target_table}{target_column} SELECT {source_column} FROM {source_table}')
                 self.conn.commit()
 
             self.db_logger.debug(f'{instruction} success')
