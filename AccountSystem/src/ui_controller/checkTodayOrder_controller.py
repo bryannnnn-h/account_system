@@ -10,17 +10,18 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
         self.HomePage = HomePageWidget
         self.client = client
         self.TodayStore, self.todayRecord = self.client.getTodayRecord()
-        self.todayRecord[['price','amount','TotalPrice']] = self.todayRecord[['price','amount','TotalPrice']].apply(pd.to_numeric)
         self.RecordList = []
         self.initUI()
 
     def initUI(self):
+        if not self.todayRecord.empty:
+            self.todayRecord[['price','amount','TotalPrice']] = self.todayRecord[['price','amount','TotalPrice']].apply(pd.to_numeric)
+            itemGroup = self.todayRecord.groupby('ItemName').agg({'price':'min', 'amount':'sum', 'TotalPrice':'sum'})
+            itemGroup.reset_index(inplace = True)
+            itemGroup = itemGroup.rename(columns = {'index':'ItemName'})
+            for index, item in itemGroup.iterrows():
+                self.addRecord(index, item['ItemName'], item['price'], item['amount'], item['TotalPrice'])
         self.storeName_label.setText(self.TodayStore)
-        itemGroup = self.todayRecord.groupby('ItemName').agg({'price':'min', 'amount':'sum', 'TotalPrice':'sum'})
-        itemGroup.reset_index(inplace = True)
-        itemGroup = itemGroup.rename(columns = {'index':'ItemName'})
-        for index, item in itemGroup.iterrows():
-            self.addRecord(index, item['ItemName'], item['price'], item['amount'], item['TotalPrice'])
         self.Confirm_pushButton.clicked.connect(self.returnHomePage)
         self.Confirm_pushButton.clicked.connect(self.orderComplete)
         self.totalPrice_label.setText('總計：' + str(self.sumOfTotalPrice()))
