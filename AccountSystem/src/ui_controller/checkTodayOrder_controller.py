@@ -57,6 +57,7 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
         else:
             self.client.TodayCopy2History()
             self.client.clearTable('TodayRecord')
+        self.refreshPage()
 
     def deleteOrder(self):
         reply = QMessageBox.question(
@@ -70,6 +71,16 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
             return
         else:
             self.client.clearTable('TodayRecord')
+        self.refreshPage()
+
+    def resetLayout(self):
+        for i in reversed(range(self.verticalLayout.count())):
+            widget = self.verticalLayout.itemAt(i).widget()
+            if widget != None:
+                widget.setParent(None)
 
     def refreshPage(self):
-        self.__init__(self.HomePage, self.client)
+        self.resetLayout()
+        self.TodayStore, self.todayRecord = self.client.getTodayRecord()
+        self.RecordList = []
+        self.initUI()
