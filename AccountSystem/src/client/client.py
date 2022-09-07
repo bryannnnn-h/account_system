@@ -13,6 +13,12 @@ class clientHandler:
         self.sock.sendall('accountSystem'.encode())
         self.sock.recv(1024)
 
+    def clearTable(self, TableName):
+        self.setDataByServer(f'Clear {TableName}')
+
+    def TodayCopy2History(self):
+        self.setDataByServer('Copy HistoryRecord TodayRecord')
+
     def setMenuDetail(self, y, m, d, df):
         self.setDataByServer(f'Delete MenuDetail:Year ({y})&Month ({m})&Day ({d})')
         todayMsg = 'set MenuDetail (Year,Month,Day,StoreName,ItemName,price) '
