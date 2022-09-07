@@ -57,6 +57,15 @@ class clientHandler:
             FavMenuContent = pd.DataFrame()
         return FavMenuContent
 
+    def getTableContent(self,TableName):
+        TableArray = self.getDatafromServer(f'Fetch {TableName} *')
+        columnArray = self.getDatafromServer(f'showColumn {TableName}')
+        if TableArray.size != 0:
+            TableContent = pd.DataFrame(TableArray, columns=columnArray)
+        else:
+            TableContent = pd.DataFrame()
+        return TableContent
+
     def getTodayRecord(self):
         TodayRecordArray = self.getDatafromServer(f'Fetch TodayRecord StoreName ItemName price amount TotalPrice')
         if TodayRecordArray.size != 0:
@@ -73,6 +82,7 @@ class clientHandler:
         self.setDataByServer(set_msg)
         set_msg = 'Clear TodayRecord'
         self.setDataByServer(set_msg)
+
     def checkTodayRecordbyDate(self, date):
         y, m, d = date.split('-')
         get_msg = f'Fetch TodayRecord StoreName:Year ({y})&Month ({m})&Day ({d})'
