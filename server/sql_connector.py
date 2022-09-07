@@ -96,7 +96,13 @@ class db_connecter:
                             fetch_condition_msg += ' AND '
                 print(f'SELECT {fetch_column} FROM {fetch_table}{fetch_condition_msg}')
                 self.db_cursor.execute(f'SELECT {fetch_column} FROM {fetch_table}{fetch_condition_msg}')
-                result = np.array(self.db_cursor.fetchall())
+                result = np.array(self.db_cursor.fetchall()).squeeze()
+                return result
+
+            elif instrcution_label == 'showColumn':
+                fetch_table = instruction_content
+                self.db_cursor.execute(f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}'")
+                result = np.array(self.db_cursor.fetchall()).squeeze()
                 return result
 
             elif instrcution_label == "Clear":
