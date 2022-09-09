@@ -66,10 +66,10 @@ class clientHandler:
     def getTableContent(self,TableName):
         TableArray = self.getDatafromServer(f'Fetch {TableName} *')
         columnArray = self.getDatafromServer(f'showColumn {TableName}')
-        if TableArray.size != 0:
+        if TableArray.size:
             TableContent = pd.DataFrame(TableArray, columns=columnArray)
         else:
-            TableContent = pd.DataFrame([[''] * columnArray.size],columns=columnArray)
+            TableContent = pd.DataFrame([['']*len(columnArray)], columns=columnArray)
         return TableContent
 
     def getTodayRecord(self):
