@@ -100,7 +100,7 @@ class clientHandler:
         return storeName
     def checkMenuRecordbyDate(self, date):
         y, m, d = date.split('-')
-        get_msg = f'Fetch MenuRecord StoreName:Year ({y})&Month ({m})&Day ({d})'
+        get_msg = f'Fetch MenuRecord StoreName:Year ({y})&Month ({m})&Day ({d})&isCompleted (False)'
         storeNameArray = self.getDatafromServer(get_msg)
         if storeNameArray.size != 0:
             storeName = np.unique(storeNameArray.squeeze()).squeeze()
