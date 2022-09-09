@@ -69,7 +69,7 @@ class clientHandler:
         if TableArray.size != 0:
             TableContent = pd.DataFrame(TableArray, columns=columnArray)
         else:
-            TableContent = pd.DataFrame()
+            TableContent = pd.DataFrame([[''] * columnArray.size],columns=columnArray)
         return TableContent
 
     def getTodayRecord(self):
