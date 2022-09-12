@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1297</width>
+    <width>1298</width>
     <height>763</height>
    </rect>
   </property>
@@ -30,28 +30,74 @@
     <number>10</number>
    </property>
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>選擇表單</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,5,3">
+     <item>
+      <widget class="QRadioButton" name="read_radioButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>查看</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="write_radioButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>填寫</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="selectTable_comboBox">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>28</pointsize>
+        </font>
+       </property>
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>基本資料</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="8,2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="14,3,3">
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
@@ -66,7 +112,26 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="SaveTable_pushButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>儲存表格</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="OutputTable_pushButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>輸出表格</string>
        </property>
@@ -75,7 +140,14 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableView" name="showTable"/>
+    <widget class="QTableView" name="showTable">
+     <property name="font">
+      <font>
+       <family>微軟正黑體</family>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,1,1,1">
@@ -103,6 +175,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="insertRow_PushButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>新增</string>
        </property>
@@ -123,6 +201,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="deleteRow_PushButton">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>刪除</string>
        </property>

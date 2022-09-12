@@ -2,13 +2,31 @@ from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 #from PyQt5.QtGui import *
 #from PyQt5.QtWidgets import QWidget 
 import numpy as np
+import pandas as pd
 class SimpleTableModel(QAbstractTableModel):
-    def __init__(self, data, parent=None):
+    def __init__(self, data=pd.DataFrame(), parent=None):
         super().__init__(parent)
-        self._data = np.array(data)
         self.title = data.columns
+        self._data = np.array(data)
+       
         
+        self.mode = 'r'
+        print(self._data,self.title)
+        #for section in range(len(self.title)):
+        #    super().setHeaderData(section, Qt.Horizontal, self.title[section])
+        #super().headerDataChanged.emit(Qt.Horizontal, 0, len(self.title))
 
+    def AllData(self):
+        return self._data
+    
+    def getAllDataByDf(self):
+        dataDf = pd.DataFrame()
+
+        if not self.title.empty:
+            dataDf = pd.DataFrame(self._data, columns=self.title)
+
+        return dataDf
+        
     def data(self, index, role):
         if index.isValid():
             row = index.row()
@@ -20,7 +38,7 @@ class SimpleTableModel(QAbstractTableModel):
         return len(self._data)
 
     def columnCount(self, parent=QModelIndex()):
-        return len(self._data[0]) if self.rowCount() else 0
+        return len(self.title)
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         titles = self.title 
@@ -32,11 +50,15 @@ class SimpleTableModel(QAbstractTableModel):
         return super().headerData(section, orientation, role) # must have this line
 
     def flags(self, index):
-        return super().flags(index) | Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        if self.mode =='w':
+            return super().flags(index) | Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        else:
+            return super().flags(index) | Qt.ItemIsSelectable | Qt.ItemIsEnabled
     
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             self._data[index.row(), index.column()] = value
+            self.dataChanged.emit(index, index)
             return True
         return False
     
@@ -46,6 +68,7 @@ class SimpleTableModel(QAbstractTableModel):
             row = np.array([''] * self.columnCount())
             self._data = np.insert(self._data, positon + i + 1, [row], axis=0)
         self.endInsertRows()
+        self.dataChanged.emit(index, index)
         self.dirty = True
         return True
     
@@ -54,6 +77,13 @@ class SimpleTableModel(QAbstractTableModel):
         for i in indexList:
             self.beginRemoveRows(QModelIndex(), i, i)
             self.endRemoveRows()
+        self.dataChanged.emit(index, index)
         self.dirty = True
         return True
+
+
+    def changeMode(self, mode):
+        self.mode = mode
+        
+
     
