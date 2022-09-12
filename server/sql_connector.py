@@ -21,8 +21,8 @@ class db_connecter:
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS AccountTable (Year INT, Month INT, name VARCHAR(20), program INT, foodExpense INT, bookExpense INT, Total INT, isPaid BOOL, 備註 VARCHAR(200))')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS FoodExpenseDetail (Year INT, Month INT, Day INT, name VARCHAR(20), price INT, isCounted BOOL, 備註 VARCHAR(200))')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS BookExpenseDetail (Year INT, Month INT, name VARCHAR(20), price INT, isCounted BOOL, 備註 VARCHAR(200))')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuDetail (Year INT, Month INT, Day INT, StoreName VARCHAR(20), ItemName VARCHAR(20), price INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20), isSelected BOOL, isCompleted BOOL)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuDetail (ID INT, ItemName VARCHAR(20) NOT NULL, price INT NOT NULL)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuRecord (ID INT NOT NULL AUTO_INCREMENT, Year INT NOT NULL, Month INT NOT NULL, Day INT NOT NULL, StoreName VARCHAR(20) NOT NULL, isSelected BOOL, isCompleted BOOL, PRIMARY KEY(ID))')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS FavMenu (StoreName VARCHAR(20), FavMenuName VARCHAR(20), ItemName VARCHAR(20), price INT)')
@@ -149,7 +149,43 @@ class db_connecter:
                     source_table, source_column = source.split(':')
                 self.db_cursor.execute(f'INSERT {target_table}{target_column} SELECT {source_column} FROM {source_table}')
                 self.conn.commit()
-
+            elif instrcution_label == 'Update':
+                #'update_table update_column1 update_value1&...:cond_column1 (cond_val1,cond_val2,...)&cond_column2 (cond_val1,cond_val2,...)&...'
+                update_table = instruction_content.split(' ')[0]
+                instruction_content = ' '.join(instruction_content.split(' ')[1:])
+                if ':' in instruction_content: 
+                    update_column_val, update_cond = instruction_content.split(':')
+                else:
+                    update_column_val = instruction_content
+                    update_cond = ''
+                update_msg = ''
+                update_list = []
+                if '&' in update_column_val:
+                    update_list = update_column_val.split('&')
+                else:
+                    update_list.append(update_column_val)
+                for i in update_list:
+                    column, val = i.split(' ')
+                    update_msg += f'{column}={val}'
+                    if i != update_list[-1]:
+                        update_msg += ','
+                update_condition_msg = ''
+                if len(update_cond) > 0:
+                    update_cond_list = []
+                    if '&' in update_cond:
+                        update_cond_list = update_cond.split('&')
+                    else:
+                        update_cond_list.append(update_cond)
+                    update_condition_msg += ' WHERE '
+                    for i in update_cond_list:
+                        column, val = i.split(' ')
+                        update_condition_msg += column
+                        update_condition_msg += ' IN '
+                        update_condition_msg += val
+                        if i != update_cond_list[-1]:
+                            update_condition_msg += ' AND '
+                self.db_cursor.execute(f'UPDATE {update_table} SET {update_msg}{update_condition_msg}')
+                self.conn.commit()
             self.db_logger.debug(f'{instruction} success')
         except Exception as ex:
             self.db_error = ex

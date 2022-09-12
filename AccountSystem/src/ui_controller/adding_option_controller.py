@@ -12,13 +12,14 @@ class adding_option_controller(QtWidgets.QWidget, Ui_option_unit):
         self.stackedWidget.setCurrentWidget(self.page)
     
     def add_option(self):
-        cur_option_name = self.option_lineEdit.text()
-        cur_price = self.price_lineEdit.text()
-        self.option_label.setText(cur_option_name)
-        self.price_label.setText(cur_price)
-        self.stackedWidget.removeWidget(self.page)
-        newSpace = adding_option_controller(self.Layout)
-        self.Layout.insertWidget(0, newSpace)
+        if self.option_lineEdit.text() and self.price_lineEdit.text():
+            cur_option_name = self.option_lineEdit.text()
+            cur_price = self.price_lineEdit.text()
+            self.option_label.setText(cur_option_name)
+            self.price_label.setText(cur_price)
+            self.stackedWidget.removeWidget(self.page)
+            newSpace = adding_option_controller(self.Layout)
+            self.Layout.insertWidget(0, newSpace)
 
     def del_option(self, cur_option):
         self.Layout.removeWidget(cur_option)

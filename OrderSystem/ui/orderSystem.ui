@@ -35,7 +35,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="nameInput_page">
     <widget class="QWidget" name="nameInput_widget" native="true">
@@ -91,21 +91,21 @@
     </widget>
    </widget>
    <widget class="QWidget" name="order_page">
-    <widget class="QWidget" name="storeName_widget" native="true">
+    <widget class="QWidget" name="date_storeName_widget" native="true">
      <property name="geometry">
       <rect>
        <x>1</x>
        <y>60</y>
        <width>400</width>
-       <height>40</height>
+       <height>100</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
-     <layout class="QHBoxLayout" name="storeName_horizontalLayout" stretch="7">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
       <property name="spacing">
-       <number>0</number>
+       <number>20</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -119,6 +119,22 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QLabel" name="date_label">
+        <property name="font">
+         <font>
+          <family>微軟正黑體</family>
+          <pointsize>18</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>2022/1/1</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLabel" name="storeName_label">
         <property name="sizePolicy">
@@ -147,7 +163,7 @@
      <property name="geometry">
       <rect>
        <x>1</x>
-       <y>100</y>
+       <y>180</y>
        <width>400</width>
        <height>30</height>
       </rect>
@@ -234,9 +250,9 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>130</y>
+       <y>210</y>
        <width>402</width>
-       <height>582</height>
+       <height>502</height>
       </rect>
      </property>
      <property name="lineWidth">
@@ -251,7 +267,7 @@
         <x>0</x>
         <y>0</y>
         <width>400</width>
-        <height>580</height>
+        <height>500</height>
        </rect>
       </property>
       <property name="toolTipDuration">

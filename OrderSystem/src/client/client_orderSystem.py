@@ -18,28 +18,22 @@ class client_orderSystem():
         if receive_signal != 's':
             client_error = receive_signal
         return sock, client_error
-    def getMenuDate(self):
-        get_msg = f'Fetch MenuRecord Year Month Day:isSelected (True)'
-        date = self.getDatafromServer(get_msg)
-        if date.size != 0:
-            date = date.squeeze()
-            y,m,d = date
-            date = '-'.join([str(y),str(m),str(d)])
-        else:
-            date = '2022-1-1'
-        return date
-
-    def getTodayMenu(self, date):
+    
+    def getMenuInfo(self):
+        get_msg = f'Fetch MenuRecord ID Year Month Day StoreName:isSelected (True)'
+        Menudata = self.getDatafromServer(get_msg)
+        date = '0-0-0'
         y, m, d = date.split('-')
-        MenuArray = self.getDatafromServer(f'Fetch MenuDetail StoreName ItemName price:Year ({y})&Month ({m})&Day ({d})')
-        if MenuArray.size != 0:
-            todayMenu = pd.DataFrame(MenuArray, columns=['StoreName', 'ItemName', 'price'])
-            storeName = todayMenu.at[0, 'StoreName']
-            todayMenu = todayMenu[['ItemName','price']]
+        if Menudata.size != 0:
+            menuID,y,m,d,storeName = Menudata.squeeze()
+            date = '-'.join([str(y),str(m),str(d)])
+            MenuArray = self.getDatafromServer(f'Fetch MenuDetail ItemName price:ID ({menuID})')
+            todayMenu = pd.DataFrame(MenuArray, columns=['ItemName', 'price'])
         else:
-            todayMenu = pd.DataFrame()
+            date = '0-0-0'
             storeName = '無'
-        return storeName, todayMenu
+            todayMenu = pd.DataFrame()
+        return date, storeName, todayMenu
 
     def getNameList(self):
         nameList = self.getDatafromServer('Fetch basic_info name').squeeze()

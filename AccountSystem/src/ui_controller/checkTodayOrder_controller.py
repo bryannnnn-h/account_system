@@ -10,25 +10,34 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
         self.setupUi(self)
         self.HomePage = HomePageWidget
         self.client = client
-        self.TodayStore, self.todayRecord = self.client.getTodayRecord()
+        self.menuID, self.menuDate, self.TodayStore = self.client.getSelectedMenuInfo()
+        self.todayRecord = self.client.getTodayRecord()
         self.RecordList = []
+        self.numOfPeople = 0
         self.initUI()
 
     def initUI(self):
         if not self.todayRecord.empty:
             self.todayRecord[['price','amount','TotalPrice']] = self.todayRecord[['price','amount','TotalPrice']].apply(pd.to_numeric)
             itemGroup = self.todayRecord.groupby('ItemName').agg({'price':'min', 'amount':'sum', 'TotalPrice':'sum'})
+            self.numOfPeople = len(itemGroup)
             itemGroup.reset_index(inplace = True)
             itemGroup = itemGroup.rename(columns = {'index':'ItemName'})
             for index, item in itemGroup.iterrows():
                 self.addRecord(index, item['ItemName'], item['price'], item['amount'], item['TotalPrice'])
+            self.Confirm_pushButton.setEnabled(True)
+            self.Cancel_pushButton.setEnabled(True)
+        else:
+            self.Confirm_pushButton.setEnabled(False)
+            self.Cancel_pushButton.setEnabled(False)
         self.storeName_label.setText(self.TodayStore)
+        self.menuDate_label.setText(self.menuDate)
         self.ReturnHomePage_pushButton.clicked.connect(self.returnHomePage)
         self.Confirm_pushButton.clicked.connect(self.orderComplete)
         self.Cancel_pushButton.clicked.connect(self.deleteOrder)
         self.Refresh_pushButton.clicked.connect(self.refreshPage)
         self.totalPrice_label.setText('總計：' + str(self.sumOfTotalPrice()))
-
+        self.totalPeople_label.setText('人數：' + str(self.numOfPeople))
 
     def addRecord(self, index, itemName, price, amount, TotalPrice):
         new_Record = RecordUnit_controller(itemName, price, amount, TotalPrice)
@@ -56,8 +65,9 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
             return
         else:
             self.client.TodayCopy2History()
+            self.client.updateMenuState(self.menuID,Complete = True)
             self.client.clearTable('TodayRecord')
-        self.refreshPage()
+            self.refreshPage()
 
     def deleteOrder(self):
         reply = QMessageBox.question(
@@ -70,8 +80,9 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
         if reply == QMessageBox.No:
             return
         else:
+            self.client.updateMenuState(self.menuID,Complete = False)
             self.client.clearTable('TodayRecord')
-        self.refreshPage()
+            self.refreshPage()
 
     def resetLayout(self):
         for i in reversed(range(self.verticalLayout.count())):
@@ -81,6 +92,23 @@ class checkTodayOrder_controller(QtWidgets.QWidget, Ui_TodayRecord):
 
     def refreshPage(self):
         self.resetLayout()
-        self.TodayStore, self.todayRecord = self.client.getTodayRecord()
+        self.menuID, self.menuDate, self.TodayStore = self.client.getSelectedMenuInfo()
+        self.todayRecord = self.client.getTodayRecord()
         self.RecordList = []
-        self.initUI()
+        if not self.todayRecord.empty:
+            self.todayRecord[['price','amount','TotalPrice']] = self.todayRecord[['price','amount','TotalPrice']].apply(pd.to_numeric)
+            itemGroup = self.todayRecord.groupby('ItemName').agg({'price':'min', 'amount':'sum', 'TotalPrice':'sum'})
+            self.numOfPeople = len(itemGroup)
+            itemGroup.reset_index(inplace = True)
+            itemGroup = itemGroup.rename(columns = {'index':'ItemName'})
+            for index, item in itemGroup.iterrows():
+                self.addRecord(index, item['ItemName'], item['price'], item['amount'], item['TotalPrice'])
+            self.Confirm_pushButton.setEnabled(True)
+            self.Cancel_pushButton.setEnabled(True)
+        else:
+            self.Confirm_pushButton.setEnabled(False)
+            self.Cancel_pushButton.setEnabled(False)
+        self.storeName_label.setText(self.TodayStore)
+        self.menuDate_label.setText(self.menuDate)
+        self.totalPrice_label.setText('總計：' + str(self.sumOfTotalPrice()))
+        self.totalPeople_label.setText('人數：' + str(self.numOfPeople))

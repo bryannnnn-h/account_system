@@ -18,7 +18,7 @@ class clientHandler:
 
     def TodayCopy2History(self):
         self.setDataByServer('Copy HistoryRecord TodayRecord')
-
+    '''
     def setMenuDetail(self, y, m, d, df):
         self.setDataByServer(f'Delete MenuDetail:Year ({y})&Month ({m})&Day ({d})')
         todayMsg = 'set MenuDetail (Year,Month,Day,StoreName,ItemName,price) '
@@ -26,12 +26,33 @@ class clientHandler:
             todayMsg += f'({y},{m},{d},\"{item["StoreName"]}\",\"{item["ItemName"]}\",{int(item["price"])}),'
 
         self.setDataByServer(todayMsg)
+    '''
+    def getSelectedMenuInfo(self):
+        get_msg = 'Fetch MenuRecord ID Year Month Day StoreName:isSelected (True)'
+        MenuInfo = self.getDatafromServer(get_msg)
+        if MenuInfo.size != 0:
+            MenuInfo = MenuInfo.squeeze()
+        else:
+            menuID = '0'
+            menuDate = ''
+            storeName = '無'
+        return menuID, menuDate, storeName
+    def updateMenuState(self, menuID, Complete=False):
+        set_msg = f'Update MenuRecord isSelected False&isCompleted {Complete}:ID ({menuID})'
+        self.setDataByServer(set_msg)
     
-    def setMenuRecord(self, y, m, d, storeName):
-        self.setDataByServer(f'Delete MenuRecord:Year ({y})&Month ({m})&Day ({d})')
+    def setMenu(self, y, m, d, storeName, df):
+        delete_id = self.getDatafromServer(f'Fetch MenuRecord ID:Year ({y})&Month ({m})&Day ({d})&isCompleted (False)').squeeze()
+        if delete_id:
+            self.setDataByServer(f'Delete MenuDetail:ID ({delete_id})')
+            self.setDataByServer(f'Delete MenuRecord:ID ({delete_id})')
         set_msg = f'set MenuRecord (Year,Month,Day,StoreName,isSelected,isCompleted) ({y},{m},{d},"{storeName}",False,False)'
         self.setDataByServer(set_msg)
-
+        insert_id = self.getDatafromServer(f'Fetch MenuRecord ID:Year ({y})&Month ({m})&Day ({d})&isCompleted (False)').squeeze()
+        todayMsg = 'set MenuDetail (ID,ItemName,price) '
+        for index, item in df.iterrows():
+            todayMsg += f'({insert_id},\"{item["ItemName"]}\",{int(item["price"])}),' 
+        self.setDataByServer(todayMsg)
     def addFavMenu(self, df):   
         FavMsg = 'set FavMenu (StoreName,FavMenuName,ItemName,price) '
         for index, item in df.iterrows():
@@ -73,15 +94,12 @@ class clientHandler:
         return TableContent
 
     def getTodayRecord(self):
-        TodayRecordArray = self.getDatafromServer(f'Fetch TodayRecord StoreName ItemName price amount TotalPrice')
+        TodayRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName price amount TotalPrice')
         if TodayRecordArray.size != 0:
-            TodayRecordContent = pd.DataFrame(TodayRecordArray, columns=['StoreName', 'ItemName', 'price', 'amount', 'TotalPrice'])
-            TodayStoreName = TodayRecordContent.at[0,'StoreName']
-            TodayRecordContent = TodayRecordContent[['ItemName', 'price', 'amount', 'TotalPrice']]
+            TodayRecordContent = pd.DataFrame(TodayRecordArray, columns=['ItemName', 'price', 'amount', 'TotalPrice'])
         else:
             TodayRecordContent = pd.DataFrame()
-            TodayStoreName = '無'
-        return TodayStoreName, TodayRecordContent
+        return TodayRecordContent
 
     def setOrderComplete(self):
         set_msg = 'Copy HistoryRecord TodayRecord'
@@ -100,19 +118,19 @@ class clientHandler:
         return storeName
     def checkMenuRecordbyDate(self, date):
         y, m, d = date.split('-')
-        get_msg = f'Fetch MenuRecord StoreName:Year ({y})&Month ({m})&Day ({d})&isCompleted (False)'
-        storeNameArray = self.getDatafromServer(get_msg)
-        if storeNameArray.size != 0:
-            storeName = np.unique(storeNameArray.squeeze()).squeeze()
+        get_msg = f'Fetch MenuRecord ID StoreName:Year ({y})&Month ({m})&Day ({d})&isCompleted (False)'
+        ID_storeNameArray = self.getDatafromServer(get_msg)
+        if ID_storeNameArray.size != 0:
+            id, storeName = ID_storeNameArray.squeeze()
         else:
             storeName = ''
-        return storeName
-    def getMenuDetailbyDate(self, date):
-        y, m, d = date.split('-')
-        get_msg = f'Fetch MenuDetail StoreName ItemName price:Year ({y})&Month ({m})&Day ({d})'
+            id = ''
+        return id, storeName
+    def getMenuDetailbyID(self, id):
+        get_msg = f'Fetch MenuDetail ItemName price:ID ({id})'
         menuArray = self.getDatafromServer(get_msg)
         if menuArray.size != 0:
-            MenuContent = pd.DataFrame(menuArray, columns=['StoreName', 'ItemName', 'price'])
+            MenuContent = pd.DataFrame(menuArray, columns=['ItemName', 'price'])
         else:
             MenuContent = pd.DataFrame()
         return MenuContent
