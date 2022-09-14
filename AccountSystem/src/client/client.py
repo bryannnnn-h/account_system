@@ -102,8 +102,6 @@ class clientHandler:
 
     def InsertAccountTable(self, TableName, data):
         TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
-        
-        
 
         col_msg = f'{list(data.columns)}'.replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
         

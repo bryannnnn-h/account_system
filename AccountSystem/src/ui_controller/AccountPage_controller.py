@@ -1,4 +1,3 @@
-from posixpath import split
 from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 #from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
