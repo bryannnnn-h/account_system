@@ -23,8 +23,8 @@ class db_connecter:
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS BookExpenseDetail (ID INT, Year INT, Month INT, name VARCHAR(20) NOT NULL, price INT DEFAULT 0, isCounted BOOL DEFAULT FALSE, 備註 VARCHAR(200))')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuDetail (ID INT, ItemName VARCHAR(20) NOT NULL, price INT NOT NULL)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuRecord (ID INT NOT NULL AUTO_INCREMENT, Year INT NOT NULL, Month INT NOT NULL, Day INT NOT NULL, StoreName VARCHAR(20) NOT NULL, isSelected BOOL DEFAULT FALSE, isCompleted BOOL DEFAULT FALSE, PRIMARY KEY(ID))')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS FavMenu (StoreName VARCHAR(20), FavMenuName VARCHAR(20), ItemName VARCHAR(20), price INT)')
             except Exception as ex:
                 self.closeDB()
@@ -107,9 +107,9 @@ class db_connecter:
                 self.db_cursor.execute(f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}' order by ORDINAL_POSITION")
                 result = np.array(self.db_cursor.fetchall()).squeeze()
                 return result
-                
+
             elif instrcution_label == 'showInfo':
-                fetchInfo, fetch_table = instruction_content
+                fetchInfo, fetch_table = instruction_content.split(' ')
                 self.db_cursor.execute(f"SELECT {fetchInfo} FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}' order by ORDINAL_POSITION")
                 result = np.array(self.db_cursor.fetchall()).squeeze()
                 return result
