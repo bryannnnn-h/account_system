@@ -8,7 +8,7 @@ import numpy as np
 
 
 class AccountPage_controller(QWidget, Ui_AccountPage):
-    state = [0,1,2]
+    state = ['','Update','set']
     tableNameDict = {'基本資料':'basic_info'}
     def __init__(self, HomePageWidget, client):
         super(AccountPage_controller, self).__init__()
@@ -18,7 +18,8 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.model = SimpleTableModel()
         self.MainData = None
         self.stateList = None
-        self.deleteData = None
+        self.deleteId = None
+        self.idList = None
         self.Insertable = False
         
         self.initUI()    
@@ -34,6 +35,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
 
         self.deleteRow_PushButton.clicked.connect(self.deleteRow)
         self.insertRow_PushButton.clicked.connect(self.insertRow)
+        self.SaveTable_pushButton.clicked.connect(self.saveTable)
         self.read_radioButton.toggled.connect(self.changeMode)
         self.write_radioButton.toggled.connect(self.changeMode)
 
@@ -48,9 +50,15 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
     def changeTable(self):
         TableName = self.selectTable_comboBox.currentText()
         self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
-        self.deleteData = pd.DataFrame(columns = self.MainData.columns)
+        if 'ID' in self.MainData.columns:
+            self.idList = list(self.MainData['ID'])
+            self.MainData = self.MainData.drop(columns = ['ID'])
+
+        #self.deleteData = pd.DataFrame(columns = self.MainData.columns)
+        self.deleteId = []
         if self.MainData.at[0, 'name'] == '':
             self.stateList = [2]
+            self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
         self.model = SimpleTableModel(self.MainData)
@@ -85,11 +93,13 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         if indexes:
             if indexes[-1].isValid():
                 self.stateList.insert(indexes[-1] + 1, 2)
-                print(self.stateList)
+                self.idList.insert(indexes[-1] + 1, 0)
+                print(self.idList, '\n', self.stateList)
                 self.showTable.model().insertRows(indexes[-1].row(), 1, QModelIndex())
         else:
             self.stateList.insert(len(self.stateList), 2)
-            print(self.stateList)
+            self.idList.insert(len(self.idList), 0)
+            print(self.idList, '\n', self.stateList)
             self.showTable.model().insertRows(self.showTable.model().rowCount()-1, 1, QModelIndex())
         
 
@@ -109,15 +119,44 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         indexList = sorted(indexList, reverse=True)
         for i in indexList:
             self.stateList.pop(i)
-            self.deleteData = pd.concat([self.deleteData, self.MainData.iloc[[i]]], axis=0)
+            #self.deleteData = pd.concat([self.deleteData, self.MainData.iloc[[i]]], axis=0)
+            popId = self.idList.pop(i)
+            print('pop ',self.idList)
+            if popId != 0:
+                self.deleteId.append(popId)
         self.showTable.model().removeRows(indexes[0].row(), indexList, rows, QModelIndex())
 
     def rewriteData(self):
         self.MainData = self.model.getAllDataByDf()
-        print('this is ')
-        print(self.MainData)
-        print('')
-        print('del \n',self.deleteData)
+        #1. deleteId
+        #2. i at stateList==1 updata db 'id'==idList[id]
+        #3. i at stateList==2
+
+    def ModifyData(self):
+        TableName = self.selectTable_comboBox.currentText()
+        for id in self.deleteId:
+            self.client.deleteTablebyId(self.tableNameDict[TableName], id)
+        
+        for index, st in enumerate(self.stateList):
+            if st == 0: continue
+            self.client.modifyAccountTable(
+                self.tableNameDict[TableName], 
+                self.state[st], 
+                self.idList[index],
+                list(self.MainData.columns),
+                list(self.MainData.iloc[index]))
+
+    def saveTable(self):
+        col = list(self.MainData.columns)
+        col.remove('備註')
+        checkSpace = self.MainData[col]
+        
+        if checkSpace.isnull().any().any() or checkSpace.apply(lambda x:x=='').any().any():
+            QMessageBox.warning(None, '錯誤', '基本資料不可有空白欄位。')
+            return
+        self.ModifyData()
+
+
 
         
 
