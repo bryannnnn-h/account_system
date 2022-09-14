@@ -93,6 +93,31 @@ class clientHandler:
             TableContent = pd.DataFrame([['']*len(columnArray)], columns=columnArray)
         return TableContent
 
+    def deleteTablebyId(self, TableName, id):
+        msg = f'Delete {TableName}:ID ({id})'
+        self.setDataByServer(msg)
+
+    def modifyAccountTable(self, TableName, action, id, column, data):
+        #setColumns = col
+        #setData = np.array(data).squeeze()
+        if action == 'set':
+            col_msg = f'{column}'.replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
+            data_msg = f'{data}'.replace("[", "(").replace("]", ")").replace(" ","")
+            msg = f'{action} {TableName} {col_msg} {data_msg}'
+            #msg = msg.replace("[", "(").replace("]", ")")
+            print(msg)
+        elif action == 'Update':
+            msg = f'{action} {TableName} '
+            for i in range(len(column)):
+                msg += f'{column[i]} {data[i]}'
+                if i != len(column) - 1:
+                    msg += '&'
+                else:
+                    msg += ':'
+            msg += f'ID ({id})'
+            print(msg)
+        self.setDataByServer(msg)
+
     def getTodayRecord(self):
         TodayRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName price amount TotalPrice')
         if TodayRecordArray.size != 0:
