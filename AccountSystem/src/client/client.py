@@ -1,3 +1,4 @@
+from re import I
 import socket
 from client.client_config import *
 import sys
@@ -91,31 +92,58 @@ class clientHandler:
             TableContent = pd.DataFrame(TableArray, columns=columnArray)
         else:
             TableContent = pd.DataFrame([['']*len(columnArray)], columns=columnArray)
+            #TableContent = pd.DataFrame(columns=columnArray)
         return TableContent
 
     def deleteTablebyId(self, TableName, id):
-        msg = f'Delete {TableName}:ID ({id})'
+        idMsg = f'{id}'.replace("[", "(").replace("]", ")").replace(" ", "")
+        msg = f'Delete {TableName}:ID {idMsg}'
         self.setDataByServer(msg)
 
-    def modifyAccountTable(self, TableName, action, id, column, data):
-        #setColumns = col
-        #setData = np.array(data).squeeze()
-        if action == 'set':
-            col_msg = f'{column}'.replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
-            data_msg = f'{data}'.replace("[", "(").replace("]", ")").replace(" ","")
-            msg = f'{action} {TableName} {col_msg} {data_msg}'
-            #msg = msg.replace("[", "(").replace("]", ")")
-            print(msg)
-        elif action == 'Update':
-            msg = f'{action} {TableName} '
-            for i in range(len(column)):
+    def InsertAccountTable(self, TableName, data):
+        TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
+        
+        
+
+        col_msg = f'{list(data.columns)}'.replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
+        
+        data_msg = ''
+
+        for index, item in data.iterrows():
+            item_msg = ''
+            if len(TypeArray) == len(item):
+                for i, dtype in enumerate(TypeArray):
+                    print('dtype is ', dtype)
+                    if dtype == 'varchar':
+                        item_msg += f"'{item[i]}'"
+                    else:
+                        item_msg += f"{item[i]}"
+                    if i != len(TypeArray)-1:
+                        item_msg += ','       
+            data_msg += f'({item_msg}),'
+
+        
+        msg = f'set {TableName} {col_msg} {data_msg}'
+        print(msg)
+        
+        self.setDataByServer(msg)
+           
+
+    def UpdateAccountTable(self, TableName, action, id, column, data):
+        
+        TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
+        msg = f'{action} {TableName} '
+        for i in range(len(column)):
+            if TypeArray[i] == 'varchar':
+                msg += f"{column[i]} '{data[i]}'"
+            else:
                 msg += f'{column[i]} {data[i]}'
-                if i != len(column) - 1:
-                    msg += '&'
-                else:
-                    msg += ':'
-            msg += f'ID ({id})'
-            print(msg)
+            if i != len(column) - 1:
+                msg += '&'
+            else:
+                msg += ':'
+        msg += f'ID ({id})'
+        print(msg)
         self.setDataByServer(msg)
 
     def getTodayRecord(self):

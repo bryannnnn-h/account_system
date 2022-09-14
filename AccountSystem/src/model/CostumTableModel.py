@@ -68,7 +68,7 @@ class SimpleTableModel(QAbstractTableModel):
             row = np.array([''] * self.columnCount())
             self._data = np.insert(self._data, positon + i + 1, [row], axis=0)
         self.endInsertRows()
-        self.dataChanged.emit(index, index)
+        #self.dataChanged.emit(index, index)
         self.dirty = True
         return True
     
@@ -77,7 +77,7 @@ class SimpleTableModel(QAbstractTableModel):
         for i in indexList:
             self.beginRemoveRows(QModelIndex(), i, i)
             self.endRemoveRows()
-        self.dataChanged.emit(index, index)
+        #self.dataChanged.emit(index, index)
         self.dirty = True
         return True
 

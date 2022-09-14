@@ -1,3 +1,4 @@
+from posixpath import split
 from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 #from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
@@ -43,6 +44,23 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.deleteRow_PushButton.setEnabled(False)
         print('origin ', self.MainData)
 
+    def refreshTable(self):
+        TableName = self.selectTable_comboBox.currentText()
+        self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
+        if 'ID' in self.MainData.columns:
+            self.idList = list(self.MainData['ID'])
+            self.MainData = self.MainData.drop(columns = ['ID'])
+
+        self.deleteId = []
+        if self.MainData.at[0, 'name'] == '':
+            self.stateList = [2]
+            self.idList = [0]
+        else:
+            self.stateList = [0]*len(self.MainData)
+        self.model = SimpleTableModel(self.MainData)
+        self.model.dataChanged.connect(self.rewriteData)
+        self.showTable.setModel(self.model)
+        self.changeMode()
 
     def setupComboBox(self):
         self.selectTable_comboBox.currentTextChanged.connect(self.changeTable)
@@ -90,15 +108,20 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         if not self.sender():
             return
         indexes=self.showTable.selectionModel().selectedIndexes().sort()
+        newRow = pd.DataFrame([['']*len(self.MainData.columns)], columns = self.MainData.columns)
         if indexes:
             if indexes[-1].isValid():
                 self.stateList.insert(indexes[-1] + 1, 2)
                 self.idList.insert(indexes[-1] + 1, 0)
+                dfs = np.split(self.MainData, [indexes[-1] + 1])
+                self.MainData = pd.concat([dfs[0], newRow, dfs[1]], ignore_index=True)
                 print(self.idList, '\n', self.stateList)
                 self.showTable.model().insertRows(indexes[-1].row(), 1, QModelIndex())
         else:
             self.stateList.insert(len(self.stateList), 2)
             self.idList.insert(len(self.idList), 0)
+            
+            self.MainData = pd.concat([self.MainData, newRow], ignore_index=True)
             print(self.idList, '\n', self.stateList)
             self.showTable.model().insertRows(self.showTable.model().rowCount()-1, 1, QModelIndex())
         
@@ -119,32 +142,42 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         indexList = sorted(indexList, reverse=True)
         for i in indexList:
             self.stateList.pop(i)
-            #self.deleteData = pd.concat([self.deleteData, self.MainData.iloc[[i]]], axis=0)
             popId = self.idList.pop(i)
+            self.MainData = self.MainData.drop(i, axis = 0)
+            self.MainData.reset_index(inplace=True, drop=True)
             print('pop ',self.idList)
             if popId != 0:
                 self.deleteId.append(popId)
         self.showTable.model().removeRows(indexes[0].row(), indexList, rows, QModelIndex())
 
-    def rewriteData(self):
+    def rewriteData(self, first_index, last_index):
         self.MainData = self.model.getAllDataByDf()
+        if self.stateList[first_index.row()] == 0:
+            self.stateList[first_index.row()] = 1
+        print(self.MainData.iloc[first_index.row()])
         #1. deleteId
         #2. i at stateList==1 updata db 'id'==idList[id]
         #3. i at stateList==2
 
     def ModifyData(self):
         TableName = self.selectTable_comboBox.currentText()
-        for id in self.deleteId:
-            self.client.deleteTablebyId(self.tableNameDict[TableName], id)
+        if len(self.deleteId) != 0:
+            self.client.deleteTablebyId(self.tableNameDict[TableName], list(self.deleteId))
         
+        insertDf = pd.DataFrame(columns = self.MainData.columns)
         for index, st in enumerate(self.stateList):
             if st == 0: continue
-            self.client.modifyAccountTable(
-                self.tableNameDict[TableName], 
-                self.state[st], 
-                self.idList[index],
-                list(self.MainData.columns),
-                list(self.MainData.iloc[index]))
+            elif st == 2:
+                insertDf = pd.concat([insertDf, self.MainData.iloc[[index]]], ignore_index=True)
+            else: 
+                self.client.UpdateAccountTable(
+                    self.tableNameDict[TableName], 
+                    self.state[st], 
+                    self.idList[index],
+                    list(self.MainData.columns),
+                    list(self.MainData.iloc[index]))
+        if not insertDf.empty:
+            self.client.InsertAccountTable(self.tableNameDict[TableName], insertDf)
 
     def saveTable(self):
         col = list(self.MainData.columns)
@@ -155,6 +188,11 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             QMessageBox.warning(None, '錯誤', '基本資料不可有空白欄位。')
             return
         self.ModifyData()
+        self.refreshTable()
+        
+    
+        
+
 
 
 
