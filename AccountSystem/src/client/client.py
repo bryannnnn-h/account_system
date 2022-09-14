@@ -159,7 +159,16 @@ class clientHandler:
         else:
             MenuContent = pd.DataFrame()
         return MenuContent
-
+    def getMenuRecord(self):
+        get_msg = f'Fetch MenuRecord *'
+        menuRecordArray = self.getDatafromServer(get_msg)
+        menuRecordColumn = self.getDatafromServer('showColumn MenuRecord')
+        if menuRecordArray.size != 0:
+            menuRecordData = pd.DataFrame(menuRecordArray, columns=menuRecordColumn)
+        else:
+            menuRecordData = pd.DataFrame([['']*len(menuRecordColumn)], columns=menuRecordColumn)
+        return menuRecordData
+        
     def getDatafromServer(self, msg):
         data_container = np.array([])
         msg = msg.encode()
