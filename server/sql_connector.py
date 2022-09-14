@@ -111,7 +111,10 @@ class db_connecter:
             elif instrcution_label == 'showInfo':
                 fetchInfo, fetch_table = instruction_content.split(' ')
                 self.db_cursor.execute(f"SELECT {fetchInfo} FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}' order by ORDINAL_POSITION")
-                result = np.array(self.db_cursor.fetchall()).squeeze()
+                if ',' not in fetchInfo:
+                    result = np.array(self.db_cursor.fetchall()).squeeze()
+                else:
+                    result = np.array(self.db_cursor.fetchall())
                 return result
 
             elif instrcution_label == "Clear":
