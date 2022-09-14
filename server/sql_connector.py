@@ -104,7 +104,13 @@ class db_connecter:
 
             elif instrcution_label == 'showColumn':
                 fetch_table = instruction_content
-                self.db_cursor.execute(f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}'")
+                self.db_cursor.execute(f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}' order by ORDINAL_POSITION")
+                result = np.array(self.db_cursor.fetchall()).squeeze()
+                return result
+                
+            elif instrcution_label == 'showInfo':
+                fetchInfo, fetch_table = instruction_content
+                self.db_cursor.execute(f"SELECT {fetchInfo} FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{fetch_table}' order by ORDINAL_POSITION")
                 result = np.array(self.db_cursor.fetchall()).squeeze()
                 return result
 
