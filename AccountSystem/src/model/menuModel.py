@@ -6,13 +6,16 @@ import pandas as pd
 class menuRecordModel(SimpleTableModel):
     def __init__(self, data=pd.DataFrame(), parent=None):
         super().__init__(data, parent)
-        self.mode = 'r'
         self.title = ['年','月','日','店名','選擇菜單','完成狀態']
     def setData(self, row, value):
         index = self.createIndex(row,4)
         self._data[row, 4] = value
         self.dataChanged.emit(index,index)
         return True
+class menuDetailModel(SimpleTableModel):
+    def __init__(self, data=pd.DataFrame(), parent=None):
+        super().__init__(data, parent)
+        self.title = ['品項','價格']
 
 class menuRecordSelectDelegate(QItemDelegate):
     def __init__(self, parent=None):
@@ -21,6 +24,8 @@ class menuRecordSelectDelegate(QItemDelegate):
     def paint(self,painter, option, index):
         if not self.parent().indexWidget(index):
             values = int(index.data(Qt.DisplayRole))
+            if values == 1:
+                self.parent().setCurrentIndex(index)
             menuSelect_checkbox = QCheckBox('選擇',self.parent())
             menuSelect_checkbox.setChecked(values)
             self.checkboxList.append(menuSelect_checkbox)
@@ -29,10 +34,10 @@ class menuRecordSelectDelegate(QItemDelegate):
     
     def changeCheck(self, index):
         if self.checkboxList[index.row()].checkState() == Qt.Checked:
+            self.parent().setCurrentIndex(index)
             for i, item in enumerate(self.checkboxList):
                 if i != index.row():
                     item.setChecked(False)
-                    self.parent().model.setData(i, '0')
             self.parent().model.setData(index.row(), '1')
         else:
             self.parent().model.setData(index.row(), '0')

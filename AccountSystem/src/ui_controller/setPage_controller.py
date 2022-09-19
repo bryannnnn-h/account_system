@@ -5,7 +5,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QHeaderView, QTableView
 from ui_py.setPage import Ui_setPage
 from ui_controller.adding_option_controller import adding_option_controller
-from model.menuRecordModel import menuRecordModel, menuRecordSelectDelegate
+from model.menuModel import menuRecordModel, menuRecordSelectDelegate, menuDetailModel
 import pandas as pd
 
 class menuRecordTableView(QTableView):
@@ -26,7 +26,23 @@ class menuRecordTableView(QTableView):
    def resetModel(self, data):
       self.model = menuRecordModel(data)
       self.setModel(self.model)
-      
+class menuDetailTableView(QTableView):
+   def __init__(self, data=pd.DataFrame()):
+      super(menuDetailTableView, self).__init__()
+      font = QFont()
+      font.setFamily("微軟正黑體")
+      font.setPointSize(16)
+      self.setFont(font)
+      self.model = menuDetailModel(data)
+      self.setModel(self.model)
+      self.resizeColumnsToContents()
+      self.resizeRowsToContents()
+      self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+      self.horizontalHeader().setStretchLastSection(True)
+
+   def resetModel(self, data):
+      self.model = menuDetailModel(data)
+      self.setModel(self.model)      
 
 class setPage_controller(QWidget, Ui_setPage):
    def __init__(self, HomePageWidget, client):
@@ -38,10 +54,12 @@ class setPage_controller(QWidget, Ui_setPage):
       self.menuIDList,self.menuRecordData = self.setMenuRecordData()
       self.menuRecord_tableView = menuRecordTableView(self.menuRecordData)
       self.menuRecord_tableView.model.dataChanged.connect(self.setMenuRecordDataSelected)
+      self.menuDetail_tableView = menuDetailTableView()
       self.initUI()
 
    def initUI(self):
       self.menuRecord_verticalLayout.addWidget(self.menuRecord_tableView)
+      self.menuDetail_verticalLayout.addWidget(self.menuDetail_tableView)
       self.setPage_stackedWidget.setCurrentWidget(self.setDate_page)
       self.date_dateEdit.setDate(QDate.currentDate())
       newSpace = adding_option_controller(self.verticalLayout)
@@ -53,10 +71,13 @@ class setPage_controller(QWidget, Ui_setPage):
       self.returnHomePage_pushButton.clicked.connect(self.returnHomePage)
       self.setDate_nextStep_pushButton.clicked.connect(self.head2SetMenu)
       self.returnSetDate_pushButton.clicked.connect(self.returnSetDate)
+      self.showMenuDetail_pushButton.clicked.connect(self.showMenuDetail)
 
    def setMenuRecordData(self):
       stateDict = {'0':'未完成', '1':'已完成'}
       menuRecordData = self.client.getMenuRecord()
+      menuRecordData = menuRecordData.sort_values(by=['Year', 'Month', 'Day'])
+      menuRecordData.reset_index(inplace = True,drop=True)
       menuIDList = list(menuRecordData['ID'])
       menuRecordData = menuRecordData.drop(columns = ['ID'])
       menuRecordData['isCompleted'] = menuRecordData['isCompleted'].apply(lambda x:stateDict.get(x))
@@ -291,6 +312,16 @@ class setPage_controller(QWidget, Ui_setPage):
    def resetMenuRecord(self):
       self.menuIDList,self.menuRecordData = self.setMenuRecordData()
       self.menuRecord_tableView.resetModel(self.menuRecordData)
+   
+   def showMenuDetail(self):
+      index = self.menuRecord_tableView.currentIndex().row()
+      if index != -1:
+         menuDetailDf = self.client.getMenuDetailbyID(self.menuIDList[index])
+         self.menuDetailStoreName_label.setText(self.menuRecordData.at[index,'StoreName'])
+         self.menuDetailDate_label.setText('-'.join([self.menuRecordData.at[index,'Year'],self.menuRecordData.at[index,'Month'],self.menuRecordData.at[index,'Day']]))
+         self.menuDetail_tableView.resetModel(menuDetailDf)
+         self.setPage_stackedWidget.setCurrentWidget(self.menuDetail_page)
+            
       
 
 
