@@ -127,8 +127,12 @@ class clientHandler:
         self.setDataByServer(msg)
            
 
+    def InsertRelevantTable(self, TableName, df):
+        TypeArray = self.getDatafromServer(f'showInfo column_name,DATA_TYPE {TableName}')
+        pass
+
+
     def UpdateAccountTable(self, TableName, action, id, column, data):
-        
         TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
         msg = f'{action} {TableName} '
         for i in range(len(column)):
