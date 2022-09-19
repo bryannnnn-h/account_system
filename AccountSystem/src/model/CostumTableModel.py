@@ -11,7 +11,7 @@ class SimpleTableModel(QAbstractTableModel):
        
         
         self.mode = 'r'
-        print(self._data,self.title)
+
         #for section in range(len(self.title)):
         #    super().setHeaderData(section, Qt.Horizontal, self.title[section])
         #super().headerDataChanged.emit(Qt.Horizontal, 0, len(self.title))
