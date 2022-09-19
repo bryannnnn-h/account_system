@@ -15,11 +15,28 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         '餐費明細':'FoodExpenseDetail', 
         '教材註冊費':'BookExpenseDetail'
         }
+    columnNameDict = {
+        '姓名':'name', 
+        '年級':'grade', 
+        '方案月費':'program', 
+        '聯絡電話':'tel',
+        '繳費紀錄':'isPaid',
+        '出帳紀錄':'isCounted',
+        '年份':'Year', 
+        '月份':'Month', 
+        '日':'Day'
+    }
     titleNameDict = {
         '基本資料':['姓名', '年級', '方案月費', '聯絡電話', '備註'],
-        '帳務總表':['年份', '月份', '姓名', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
-        '餐費明細':['年份', '月份', '日', '姓名', '金額', '出帳紀錄', '備註'],
-        '教材註冊費':['年份', '月份', '姓名', '金額', '出帳紀錄', '備註']
+        '帳務總表':['年份', '月份', '姓名', '年級', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
+        '餐費明細':['年份', '月份', '日', '姓名', '年級', '金額', '出帳紀錄', '備註'],
+        '教材註冊費':['年份', '月份', '姓名', '年級', '金額', '出帳紀錄', '備註']
+    }
+    conditionChoiceDict = {
+        '基本資料':['無','姓名', '年級', '方案月費', '聯絡電話'],
+        '帳務總表':['無','年份', '月份', '姓名', '年級', '繳費紀錄'],
+        '餐費明細':['無','年份', '月份', '日', '姓名', '年級', '出帳紀錄'],
+        '教材註冊費':['無','年份', '月份', '姓名', '年級', '出帳紀錄']
     }
 
     def __init__(self, HomePageWidget, client):
@@ -82,7 +99,6 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         if 'ID' in self.MainData.columns:
             self.idList = list(self.MainData['ID'])
             self.MainData = self.MainData.drop(columns = ['ID'])
-
         #self.deleteData = pd.DataFrame(columns = self.MainData.columns)
         self.deleteId = []
         if self.MainData.at[0, 'name'] == '':
@@ -91,7 +107,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         else:
             self.stateList = [0]*len(self.MainData)
         #self.MainData.columns = self.titleNameDict[TableName] #cannot change position
-        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
+        self.model = SimpleTableModel(self.MainData, ['姓名', '年級', '方案月費', '聯絡電話', '備註'])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         
@@ -114,18 +130,18 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
                 self.insertRow_PushButton.setEnabled(True)
                 self.deleteRow_PushButton.setEnabled(True)
             
-            
-
+        
     def insertRow(self):
         if not self.sender():
             return
-        indexes=self.showTable.selectionModel().selectedIndexes().sort()
+        indexes=self.showTable.selectionModel().selectedIndexes()
+        indexes.sort()
         newRow = pd.DataFrame([['']*len(self.MainData.columns)], columns = self.MainData.columns)
         if indexes:
             if indexes[-1].isValid():
-                self.stateList.insert(indexes[-1] + 1, 2)
-                self.idList.insert(indexes[-1] + 1, 0)
-                dfs = np.split(self.MainData, [indexes[-1] + 1])
+                self.stateList.insert(indexes[-1].row() + 1, 2)
+                self.idList.insert(indexes[-1].row() + 1, 0)
+                dfs = np.split(self.MainData, [indexes[-1].row() + 1])
                 self.MainData = pd.concat([dfs[0], newRow, dfs[1]], ignore_index=True)
                 
                 self.showTable.model().insertRows(indexes[-1].row(), 1, QModelIndex())
@@ -171,6 +187,10 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         TableName = self.selectTable_comboBox.currentText()
         if len(self.deleteId) != 0:
             self.client.deleteTablebyId(self.tableNameDict[TableName], list(self.deleteId))
+            if self.tableNameDict[TableName] == 'basic_info':
+                self.client.deleteTablebyId('AccountTable', list(self.deleteId))
+                self.client.deleteTablebyId('FoodExpenseDetail', list(self.deleteId))
+                self.client.deleteTablebyId('BookExpenseDetail', list(self.deleteId))
         
         insertDf = pd.DataFrame(columns = self.MainData.columns)
         
@@ -179,14 +199,24 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             elif st == 2:
                 insertDf = pd.concat([insertDf, self.MainData.iloc[[index]]], ignore_index=True)
             else: 
-                self.client.UpdateAccountTable(
+                self.client.UpdateBasicTable(
                     self.tableNameDict[TableName], 
                     self.state[st], 
                     self.idList[index],
                     list(self.MainData.columns),
                     list(self.MainData.iloc[index]))
+                if self.tableNameDict[TableName] == 'basic_info':
+                    updateDf = self.MainData.loc[[index],['name', 'grade', 'program']]
+                    updateDf['program'] = int(updateDf['program'])
+                    self.client.UpdateRelevantTable('AccountTable', self.idList[index], updateDf, 'isPaid')
+                    self.client.UpdateRelevantTable('FoodExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
+                    self.client.UpdateRelevantTable('BookExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
         if not insertDf.empty:
-            self.client.InsertAccountTable(self.tableNameDict[TableName], insertDf)
+            self.client.InsertBasicTable(self.tableNameDict[TableName], insertDf)
+            if self.tableNameDict[TableName] == 'basic_info':
+                self.client.InsertRelevantTable('AccountTable',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade','program']].apply(lambda x: x.apply(lambda y:int(y)) if x.name=='program' else x))
+                self.client.InsertRelevantTable('FoodExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
+                self.client.InsertRelevantTable('BookExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
 
     def saveTable(self):
         col = list(self.MainData.columns)
@@ -199,7 +229,22 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.ModifyData()
         self.refreshTable()
 
+    def setupConditionComboBox(self):
+        TableName = self.selectTable_comboBox.currentText()
+        self.columnCondition_comboBox.clear()
+        self.contentCondition_comboBox.clear()
+        self.columnCondition_comboBox.addItems(self.conditionChoiceDict[TableName])
+        currentConditionContent = self.client.getConditionContent(self.tableNameDict[TableName], )
+        self.contentCondition_comboBox.addItems()
     
+    def setupConditionLayout(self):
+        if self.columnCondition_comboBox.currentIndex() or self.contentCondition_comboBox.currentIndex() == 0:
+            self.addConditionpushButton.setEnabled(True)
+        else:
+            self.addConditionpushButton.setEnabled(False)
+
+    
+
 
 
         

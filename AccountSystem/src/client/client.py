@@ -1,3 +1,4 @@
+from msilib import Table
 from re import I
 import socket
 from client.client_config import *
@@ -100,7 +101,7 @@ class clientHandler:
         msg = f'Delete {TableName}:ID {idMsg}'
         self.setDataByServer(msg)
 
-    def InsertAccountTable(self, TableName, data):
+    def InsertBasicTable(self, TableName, data):
         TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
 
         col_msg = f'{list(data.columns)}'.replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
@@ -119,18 +120,50 @@ class clientHandler:
                         item_msg += ','       
             data_msg += f'({item_msg}),'
 
-        
         msg = f'set {TableName} {col_msg} {data_msg}'
         
         self.setDataByServer(msg)
            
 
-    def InsertRelevantTable(self, TableName, df):
-        TypeArray = self.getDatafromServer(f'showInfo column_name,DATA_TYPE {TableName}')
-        pass
+    def InsertRelevantTable(self, TableName, name, tel, insert_data):
+        insert_id = []
+        for index, item in enumerate(name):
+            insert_id.append(self.getDatafromServer(f'Fetch basic_info ID:name ("{item}")&tel ("{tel[index]}")').squeeze())
+        insert_column = str(('ID','name') + tuple(insert_data.columns)).replace("'", "").replace(" ", "")
+        setTableMsg = f'set {TableName} {insert_column} '
+        for index, id in enumerate(insert_id):
+            tableMsg = str(list(insert_data.iloc[index])).replace("[", "").replace("]", "").replace(" ","")
+            setTableMsg += f'({id},"{name[index]}",{tableMsg}),' 
+        self.setDataByServer(setTableMsg)
+
+    def UpdateRelevantTable(self, TableName, id, insert_data, checkState):
+        column = tuple(insert_data.columns)
+        print(column[0],end='\n')
+        print(column, end='\n')
+        msg = f'Update {TableName} '
+        '''
+        if TableName == 'AccountTable':
+            print(column[0])
+            msg += f'{column[0]} "{insert_data.at[0, column[0]]}"&{column[1]} "{insert_data.at[0, column[1]]}"&{column[2]} {insert_data.at[0, column[2]]}:'
+        else:
+            msg += f'{column[0]} "{insert_data.at[0, column[0]]}"&{column[1]} "{insert_data.at[0, column[1]]}":'
+        '''
+        for item in column:
+            insert_item = f'"{insert_data.at[0, item]}"'
+            msg += f'{item} {insert_item}'
+            if item != column[-1]:
+                msg += '&'
+            else:
+                msg += ':'
+        
+
+        msg += f'ID ({id})&{checkState} (False)'
+        self.setDataByServer(msg)
 
 
-    def UpdateAccountTable(self, TableName, action, id, column, data):
+
+
+    def UpdateBasicTable(self, TableName, action, id, column, data):
         TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
         msg = f'{action} {TableName} '
         for i in range(len(column)):
