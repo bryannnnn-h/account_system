@@ -4,9 +4,9 @@ from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 import numpy as np
 import pandas as pd
 class SimpleTableModel(QAbstractTableModel):
-    def __init__(self, data=pd.DataFrame(), parent=None):
+    def __init__(self, data=pd.DataFrame(), titles=[], parent=None):
         super().__init__(parent)
-        self.title = data.columns
+        self.title = titles
         self._data = np.array(data)
        
         
@@ -19,13 +19,6 @@ class SimpleTableModel(QAbstractTableModel):
     def AllData(self):
         return self._data
     
-    def getAllDataByDf(self):
-        dataDf = pd.DataFrame()
-
-        if not self.title.empty:
-            dataDf = pd.DataFrame(self._data, columns=self.title)
-
-        return dataDf
         
     def data(self, index, role):
         if index.isValid():

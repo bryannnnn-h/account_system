@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1298</width>
-    <height>763</height>
+    <width>1266</width>
+    <height>827</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,6 +97,106 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="Condition_Layout" stretch="3,5,5,1,7">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>篩選條件：</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="columnCondition_comboBox">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>28</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>無</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="contentCondition_comboBox">
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>28</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>無</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addConditionpushButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>微軟正黑體</family>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::DefaultContextMenu</enum>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>+</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="14,3,3">
      <item>
       <spacer name="horizontalSpacer_4">
@@ -125,7 +225,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="OutputTable_pushButton">
+      <widget class="QPushButton" name="RefreshTable_pushButton">
        <property name="font">
         <font>
          <family>微軟正黑體</family>
@@ -133,7 +233,7 @@
         </font>
        </property>
        <property name="text">
-        <string>輸出表格</string>
+        <string>重新整理</string>
        </property>
       </widget>
      </item>

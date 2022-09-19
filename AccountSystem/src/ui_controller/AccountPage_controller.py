@@ -9,7 +9,19 @@ import numpy as np
 
 class AccountPage_controller(QWidget, Ui_AccountPage):
     state = ['','Update','set']
-    tableNameDict = {'基本資料':'basic_info'}
+    tableNameDict = {
+        '基本資料':'basic_info', 
+        '帳務總表':'AccountTable', 
+        '餐費明細':'FoodExpenseDetail', 
+        '教材註冊費':'BookExpenseDetail'
+        }
+    titleNameDict = {
+        '基本資料':['姓名', '年級', '方案月費', '聯絡電話', '備註'],
+        '帳務總表':['年份', '月份', '姓名', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
+        '餐費明細':['年份', '月份', '日', '姓名', '金額', '出帳紀錄', '備註'],
+        '教材註冊費':['年份', '月份', '姓名', '金額', '出帳紀錄', '備註']
+    }
+
     def __init__(self, HomePageWidget, client):
         super(AccountPage_controller, self).__init__()
         self.setupUi(self)
@@ -56,7 +68,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
-        self.model = SimpleTableModel(self.MainData)
+        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         self.changeMode()
@@ -78,7 +90,8 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
-        self.model = SimpleTableModel(self.MainData)
+        #self.MainData.columns = self.titleNameDict[TableName] #cannot change position
+        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         
@@ -114,7 +127,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
                 self.idList.insert(indexes[-1] + 1, 0)
                 dfs = np.split(self.MainData, [indexes[-1] + 1])
                 self.MainData = pd.concat([dfs[0], newRow, dfs[1]], ignore_index=True)
-                print(self.idList, '\n', self.stateList)
+                
                 self.showTable.model().insertRows(indexes[-1].row(), 1, QModelIndex())
         else:
             self.stateList.insert(len(self.stateList), 2)
@@ -144,26 +157,23 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             popId = self.idList.pop(i)
             self.MainData = self.MainData.drop(i, axis = 0)
             self.MainData.reset_index(inplace=True, drop=True)
-            print('pop ',self.idList)
+            
             if popId != 0:
                 self.deleteId.append(popId)
         self.showTable.model().removeRows(indexes[0].row(), indexList, rows, QModelIndex())
 
     def rewriteData(self, first_index, last_index):
-        self.MainData = self.model.getAllDataByDf()
+        self.MainData = pd.DataFrame(self.model.AllData(), columns=self.MainData.columns)
         if self.stateList[first_index.row()] == 0:
             self.stateList[first_index.row()] = 1
-        print(self.MainData.iloc[first_index.row()])
-        #1. deleteId
-        #2. i at stateList==1 updata db 'id'==idList[id]
-        #3. i at stateList==2
-
+        
     def ModifyData(self):
         TableName = self.selectTable_comboBox.currentText()
         if len(self.deleteId) != 0:
             self.client.deleteTablebyId(self.tableNameDict[TableName], list(self.deleteId))
         
         insertDf = pd.DataFrame(columns = self.MainData.columns)
+        
         for index, st in enumerate(self.stateList):
             if st == 0: continue
             elif st == 2:
@@ -188,6 +198,11 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             return
         self.ModifyData()
         self.refreshTable()
+
+    
+
+
+        
         
     
         
