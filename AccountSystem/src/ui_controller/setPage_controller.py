@@ -2,11 +2,31 @@ from statistics import NormalDist
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QHeaderView, QTableView
 from ui_py.setPage import Ui_setPage
 from ui_controller.adding_option_controller import adding_option_controller
+from model.menuRecordModel import menuRecordModel, menuRecordSelectDelegate
 import pandas as pd
 
+class menuRecordTableView(QTableView):
+   def __init__(self, data):
+      super(menuRecordTableView, self).__init__()
+      font = QFont()
+      font.setFamily("微軟正黑體")
+      font.setPointSize(16)
+      self.setFont(font)
+      self.model = menuRecordModel(data)
+      self.setItemDelegateForColumn(4, menuRecordSelectDelegate(self))
+      self.setModel(self.model)
+      self.resizeColumnsToContents()
+      self.resizeRowsToContents()
+      self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+      self.horizontalHeader().setStretchLastSection(True)
+
+   def resetModel(self, data):
+      self.model = menuRecordModel(data)
+      self.setModel(self.model)
+      
 
 class setPage_controller(QWidget, Ui_setPage):
    def __init__(self, HomePageWidget, client):
@@ -15,9 +35,13 @@ class setPage_controller(QWidget, Ui_setPage):
       self.HomePage = HomePageWidget
       self.client = client
       self.setDate = QDate.currentDate()
+      self.menuIDList,self.menuRecordData = self.setMenuRecordData()
+      self.menuRecord_tableView = menuRecordTableView(self.menuRecordData)
+      self.menuRecord_tableView.model.dataChanged.connect(self.setMenuRecordDataSelected)
       self.initUI()
 
    def initUI(self):
+      self.menuRecord_verticalLayout.addWidget(self.menuRecord_tableView)
       self.setPage_stackedWidget.setCurrentWidget(self.setDate_page)
       self.date_dateEdit.setDate(QDate.currentDate())
       newSpace = adding_option_controller(self.verticalLayout)
@@ -29,6 +53,15 @@ class setPage_controller(QWidget, Ui_setPage):
       self.returnHomePage_pushButton.clicked.connect(self.returnHomePage)
       self.setDate_nextStep_pushButton.clicked.connect(self.head2SetMenu)
       self.returnSetDate_pushButton.clicked.connect(self.returnSetDate)
+
+   def setMenuRecordData(self):
+      stateDict = {'0':'未完成', '1':'已完成'}
+      menuRecordData = self.client.getMenuRecord()
+      menuIDList = list(menuRecordData['ID'])
+      menuRecordData = menuRecordData.drop(columns = ['ID'])
+      menuRecordData['isCompleted'] = menuRecordData['isCompleted'].apply(lambda x:stateDict.get(x))
+         
+      return menuIDList,menuRecordData
 
    def returnSetDate(self):
       reply = QMessageBox.question(
@@ -134,6 +167,7 @@ class setPage_controller(QWidget, Ui_setPage):
          self.client.deleteFavMenu('上次菜單')
          self.saveFavtoDB('上次菜單')
          QMessageBox.information(None, '提示', f'成功設定{self.setDate}的菜單！')
+         self.resetMenuRecord()
       else:
          QMessageBox.warning(None, '警告', f'無填寫菜單資料！')
          return
@@ -247,6 +281,21 @@ class setPage_controller(QWidget, Ui_setPage):
    def returnHomePage(self):
       self.close()
       self.HomePage.show()
+
+   def setMenuRecordDataSelected(self, index):
+      value = self.menuRecord_tableView.model.data(index, Qt.DisplayRole)
+      self.menuRecordData.loc[index.row(), 'isSelected'] = value
+      id = self.menuIDList[index.row()]
+      self.client.updateMenuSelectState(id, value)
+   
+   def resetMenuRecord(self):
+      self.menuIDList,self.menuRecordData = self.setMenuRecordData()
+      self.menuRecord_tableView.resetModel(self.menuRecordData)
+      
+
+
+   
+      
 
 
 

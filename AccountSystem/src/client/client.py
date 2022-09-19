@@ -111,7 +111,6 @@ class clientHandler:
             item_msg = ''
             if len(TypeArray) == len(item):
                 for i, dtype in enumerate(TypeArray):
-                    print('dtype is ', dtype)
                     if dtype == 'varchar':
                         item_msg += f"'{item[i]}'"
                     else:
@@ -122,7 +121,6 @@ class clientHandler:
 
         
         msg = f'set {TableName} {col_msg} {data_msg}'
-        print(msg)
         
         self.setDataByServer(msg)
            
@@ -145,7 +143,6 @@ class clientHandler:
             else:
                 msg += ':'
         msg += f'ID ({id})'
-        print(msg)
         self.setDataByServer(msg)
 
     def getTodayRecord(self):
@@ -231,7 +228,10 @@ class clientHandler:
     def deleteFavMenu(self,name):
         delete_msg = f'Delete FavMenu:FavMenuName ("{name}")'
         self.setDataByServer(delete_msg)
-    
+
+    def updateMenuSelectState(self, id, isSelected):
+        set_msg = f'Update MenuRecord isSelected {isSelected}:id ({id})'
+        self.setDataByServer(set_msg)
     
 
 
