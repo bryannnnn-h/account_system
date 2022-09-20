@@ -141,13 +141,7 @@ class clientHandler:
         print(column[0],end='\n')
         print(column, end='\n')
         msg = f'Update {TableName} '
-        '''
-        if TableName == 'AccountTable':
-            print(column[0])
-            msg += f'{column[0]} "{insert_data.at[0, column[0]]}"&{column[1]} "{insert_data.at[0, column[1]]}"&{column[2]} {insert_data.at[0, column[2]]}:'
-        else:
-            msg += f'{column[0]} "{insert_data.at[0, column[0]]}"&{column[1]} "{insert_data.at[0, column[1]]}":'
-        '''
+       
         for item in column:
             insert_item = f'"{insert_data.at[0, item]}"'
             msg += f'{item} {insert_item}'
