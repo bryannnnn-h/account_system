@@ -1,5 +1,6 @@
+from re import T
 from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
-#from PyQt5.QtGui import *
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
 from ui_py.AccountPage import Ui_AccountPage
 from model.CostumTableModel import basic_infoModel
@@ -27,19 +28,14 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         '月份':'Month', 
         '日':'Day'
     }
-    # titleNameDict = {
-    #     '基本資料':['姓名', '年級', '方案月費', '聯絡電話', '備註'],
-    #     '帳務總表':['年份', '月份', '姓名', '年級', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
-    #     '餐費明細':['年份', '月份', '日', '姓名', '年級', '金額', '出帳紀錄', '備註'],
-    #     '教材註冊費':['年份', '月份', '姓名', '年級', '金額', '出帳紀錄', '備註']
-    # }
+    editableList = ['basic_info','BookExpenseDetail']
     conditionChoiceDict = {
         '基本資料':['無','姓名', '年級', '方案月費', '聯絡電話'],
         '帳務總表':['無','年份', '月份', '姓名', '年級', '繳費紀錄'],
         '餐費明細':['無','年份', '月份', '日', '姓名', '年級', '出帳紀錄'],
         '教材註冊費':['無','年份', '月份', '姓名', '年級', '出帳紀錄']
-    }
-
+    } 
+    
     def __init__(self, HomePageWidget, client):
         super(AccountPage_controller, self).__init__()
         self.setupUi(self)
@@ -47,10 +43,12 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.client = client
         self.model = basic_infoModel()
         self.MainData = None
-        self.stateList = None
+        self.stateList = []
         self.deleteId = None
         self.idList = None
         self.Insertable = False
+        self.currentTableName = '基本資料'
+
         
         self.initUI()    
     
@@ -66,15 +64,22 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.deleteRow_PushButton.clicked.connect(self.deleteRow)
         self.insertRow_PushButton.clicked.connect(self.insertRow)
         self.SaveTable_pushButton.clicked.connect(self.saveTable)
+        self.RefreshTable_pushButton.clicked.connect(self.refreshTableByButton)
         self.read_radioButton.toggled.connect(self.changeMode)
         self.write_radioButton.toggled.connect(self.changeMode)
 
         self.insertRow_PushButton.setEnabled(False)
         self.deleteRow_PushButton.setEnabled(False)
         
-
-    def refreshTable(self):
+    def refreshTableByButton(self):
+        if not self.checkWrittenInDB():
+            return
+        else:
+            self.refreshTable()
+        
+    def setTableData(self):
         TableName = self.selectTable_comboBox.currentText()
+        self.currentTableName = TableName
         self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
         if 'ID' in self.MainData.columns:
             self.idList = list(self.MainData['ID'])
@@ -86,9 +91,13 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
-        self.model = basic_infoModel(self.MainData)
+            
+        exec(f'self.model = {self.tableNameDict[TableName]}Model(self.MainData)')
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
+
+    def refreshTable(self):
+        self.setTableData()
         self.changeMode()
 
     def setupComboBox(self):
@@ -98,29 +107,40 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.selectTable_comboBox.currentTextChanged.connect(self.changeTable)
         
     def changeTable(self):
+        if not self.checkWrittenInDB():
+            self.selectTable_comboBox.currentTextChanged.disconnect()
+            self.selectTable_comboBox.setCurrentText(self.currentTableName)
+            self.selectTable_comboBox.currentTextChanged.connect(self.changeTable)
+            return
+
         self.write_radioButton.setEnabled(False)
         self.read_radioButton.setEnabled(False)
-        TableName = self.selectTable_comboBox.currentText()
-        self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
-        if 'ID' in self.MainData.columns:
-            self.idList = list(self.MainData['ID'])
-            self.MainData = self.MainData.drop(columns = ['ID'])
-        
-        self.deleteId = []
-        if self.MainData.at[0, 'name'] == '':
-            self.stateList = [2]
-            self.idList = [0]
-        else:
-            self.stateList = [0]*len(self.MainData)
 
-        self.model = basic_infoModel(self.MainData)
-        self.model.dataChanged.connect(self.rewriteData)
-        self.showTable.setModel(self.model)
+        self.setTableData()
+        
+        # TableName = self.selectTable_comboBox.currentText()
+        # self.currentTableName = TableName
+        # self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
+        # if 'ID' in self.MainData.columns:
+        #     self.idList = list(self.MainData['ID'])
+        #     self.MainData = self.MainData.drop(columns = ['ID'])
+        
+        # self.deleteId = []
+        # if self.MainData.at[0, 'name'] == '':
+        #     self.stateList = [2]
+        #     self.idList = [0]
+        # else:
+        #     self.stateList = [0]*len(self.MainData)
+
+        # exec(f'self.model = {self.tableNameDict[TableName]}Model(self.MainData)')
+        # self.model.dataChanged.connect(self.rewriteData)
+        # self.showTable.setModel(self.model)
         
         if not self.read_radioButton.isChecked():
-            self.read_radioButton.toggle()
-            self.write_radioButton.toggle()
-        if self.tableNameDict[TableName] == 'basic_info':
+            self.read_radioButton.setChecked(True)
+            self.write_radioButton.setChecked(False)
+            
+        if self.tableNameDict[self.selectTable_comboBox.currentText()] in self.editableList:
             self.Insertable = True
             self.write_radioButton.setEnabled(True)
             self.read_radioButton.setEnabled(True)
@@ -138,7 +158,6 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
                 self.insertRow_PushButton.setEnabled(True)
                 self.deleteRow_PushButton.setEnabled(True)
             
-        
     def insertRow(self):
         if not self.sender():
             return
@@ -167,7 +186,16 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             return
         indexes=self.showTable.selectionModel().selectedIndexes()
         if len(indexes) == 0: 
-            QMessageBox.warning(None, '錯誤', '沒有選擇要刪除的欄位。')
+            QMessageBox.warning(None, '錯誤', '<font size = "18">沒有選擇要刪除的欄位。</font>')
+            return
+        reply = QMessageBox.question(
+               None, 
+               '提示訊息', 
+               f'<font size = "18">確定刪除選定的資料嗎？</font>',
+               QMessageBox.Yes | QMessageBox.No, 
+               QMessageBox.No)
+            
+        if reply == QMessageBox.No:
             return
         rows = indexes[-1].row() - indexes[0].row() + 1
         indexList = []
@@ -195,10 +223,10 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         TableName = self.selectTable_comboBox.currentText()
         if len(self.deleteId) != 0:
             self.client.deleteTablebyId(self.tableNameDict[TableName], list(self.deleteId))
-            if self.tableNameDict[TableName] == 'basic_info':
-                self.client.deleteTablebyId('AccountTable', list(self.deleteId))
-                self.client.deleteTablebyId('FoodExpenseDetail', list(self.deleteId))
-                self.client.deleteTablebyId('BookExpenseDetail', list(self.deleteId))
+            # if self.tableNameDict[TableName] == 'basic_info':
+            #     self.client.deleteTablebyId('AccountTable', list(self.deleteId))
+            #     self.client.deleteTablebyId('FoodExpenseDetail', list(self.deleteId))
+            #     self.client.deleteTablebyId('BookExpenseDetail', list(self.deleteId))
         
         insertDf = pd.DataFrame(columns = self.MainData.columns)
         
@@ -213,30 +241,62 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
                     self.idList[index],
                     list(self.MainData.columns),
                     list(self.MainData.iloc[index]))
-                if self.tableNameDict[TableName] == 'basic_info':
-                    updateDf = self.MainData.loc[[index],['name', 'grade', 'program']]
-                    updateDf['program'] = int(updateDf['program'])
-                    self.client.UpdateRelevantTable('AccountTable', self.idList[index], updateDf, 'isPaid')
-                    self.client.UpdateRelevantTable('FoodExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
-                    self.client.UpdateRelevantTable('BookExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
+                # if self.tableNameDict[TableName] == 'basic_info':
+                #     updateDf = self.MainData.loc[[index],['name', 'grade', 'program']]
+                #     updateDf['program'] = int(updateDf['program'])
+                    # self.client.UpdateRelevantTable('AccountTable', self.idList[index], updateDf, 'isPaid')
+                    # self.client.UpdateRelevantTable('FoodExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
+                    # self.client.UpdateRelevantTable('BookExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
         if not insertDf.empty:
             self.client.InsertBasicTable(self.tableNameDict[TableName], insertDf)
-            if self.tableNameDict[TableName] == 'basic_info':
-                self.client.InsertRelevantTable('AccountTable',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade','program']].apply(lambda x: x.apply(lambda y:int(y)) if x.name=='program' else x))
-                self.client.InsertRelevantTable('FoodExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
-                self.client.InsertRelevantTable('BookExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
+            # if self.tableNameDict[TableName] == 'basic_info':
+                # self.client.InsertRelevantTable('AccountTable',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade','program']].apply(lambda x: x.apply(lambda y:int(y)) if x.name=='program' else x))
+                # self.client.InsertRelevantTable('FoodExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
+                # self.client.InsertRelevantTable('BookExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
 
     def saveTable(self):
-        col = list(self.MainData.columns)
-        col.remove('備註')
-        checkSpace = self.MainData[col]
-        
-        if checkSpace.isnull().any().any() or checkSpace.apply(lambda x:x=='').any().any():
-            QMessageBox.warning(None, '錯誤', '基本資料不可有空白欄位。')
-            return
+        if self.checkSpaceInTable():
+            return False
         self.ModifyData()
         self.refreshTable()
+        return True
 
+    def checkSpaceInTable(self):
+        if self.MainData is not None:    
+            col = list(self.MainData.columns)
+            col.remove('備註')
+            checkSpace = self.MainData[col]
+        
+            if checkSpace.isnull().any().any() or checkSpace.apply(lambda x:x=='').any().any():
+                QMessageBox.warning(None, '錯誤', '<font size = "18">不可儲存空白欄位資料。</font>')
+                return True
+            else:
+                return False
+        else:
+            return False
+    def checkWrittenInDB(self):
+        if (1 in self.stateList) or (2 in self.stateList and len(self.stateList) > 1):
+            reply = QMessageBox(
+                QMessageBox.Question, 
+                '提示', 
+                '是否將更改過的資料儲存？'
+            )
+            yes = reply.addButton('儲存', QMessageBox.YesRole)
+            no = reply.addButton('不要儲存', QMessageBox.NoRole)
+            cancel = reply.addButton('取消', QMessageBox.RejectRole)
+            reply.setFont(QFont('微軟正黑體', 18))
+            reply.exec()
+         
+            if reply.clickedButton() == yes:
+                return self.saveTable()
+            elif reply.clickedButton() == no:
+                return True
+            elif reply.clickedButton() == cancel:
+                return False
+        else:
+            return True
+
+    #condition ui control
     def setupConditionComboBox(self):
         TableName = self.selectTable_comboBox.currentText()
         self.columnCondition_comboBox.clear()
