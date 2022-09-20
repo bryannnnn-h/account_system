@@ -3,21 +3,15 @@ from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 #from PyQt5.QtWidgets import QWidget 
 import numpy as np
 import pandas as pd
-class SimpleTableModel(QAbstractTableModel):
+class basic_infoModel(QAbstractTableModel):
     def __init__(self, data=pd.DataFrame(), titles=[], parent=None):
         super().__init__(parent)
         self.title = titles
-        self._data = np.array(data)
-       
-        
+        self._data = np.array(data)        
         self.mode = 'r'
-        #for section in range(len(self.title)):
-        #    super().setHeaderData(section, Qt.Horizontal, self.title[section])
-        #super().headerDataChanged.emit(Qt.Horizontal, 0, len(self.title))
-
+        
     def AllData(self):
-        return self._data
-    
+        return self._data    
         
     def data(self, index, role):
         if index.isValid():
@@ -60,7 +54,7 @@ class SimpleTableModel(QAbstractTableModel):
             row = np.array([''] * self.columnCount())
             self._data = np.insert(self._data, positon + i + 1, [row], axis=0)
         self.endInsertRows()
-        #self.dataChanged.emit(index, index)
+        
         self.dirty = True
         return True
     
@@ -69,7 +63,6 @@ class SimpleTableModel(QAbstractTableModel):
         for i in indexList:
             self.beginRemoveRows(QModelIndex(), i, i)
             self.endRemoveRows()
-        #self.dataChanged.emit(index, index)
         self.dirty = True
         return True
 
