@@ -1,9 +1,9 @@
 from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel,QAbstractItemModel
 from PyQt5.QtWidgets import QItemDelegate, QCheckBox
-from model.CostumTableModel import SimpleTableModel
+from model.CostumTableModel import basic_infoModel
 import numpy as np
 import pandas as pd
-class menuRecordModel(SimpleTableModel):
+class menuRecordModel(basic_infoModel):
     def __init__(self, data=pd.DataFrame(), parent=None):
         super().__init__(data, parent)
         self.title = ['年','月','日','店名','選擇菜單','完成狀態']
@@ -12,7 +12,7 @@ class menuRecordModel(SimpleTableModel):
         self._data[row, 4] = value
         self.dataChanged.emit(index,index)
         return True
-class menuDetailModel(SimpleTableModel):
+class menuDetailModel(basic_infoModel):
     def __init__(self, data=pd.DataFrame(), parent=None):
         super().__init__(data, parent)
         self.title = ['品項','價格']

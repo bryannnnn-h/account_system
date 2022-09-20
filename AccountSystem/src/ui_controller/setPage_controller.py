@@ -72,6 +72,7 @@ class setPage_controller(QWidget, Ui_setPage):
       self.setDate_nextStep_pushButton.clicked.connect(self.head2SetMenu)
       self.returnSetDate_pushButton.clicked.connect(self.returnSetDate)
       self.showMenuDetail_pushButton.clicked.connect(self.showMenuDetail)
+      self.returnSetDate_pushButton_2.clicked.connect(self.returnSetDate)
 
    def setMenuRecordData(self):
       stateDict = {'0':'未完成', '1':'已完成'}
@@ -85,15 +86,16 @@ class setPage_controller(QWidget, Ui_setPage):
       return menuIDList,menuRecordData
 
    def returnSetDate(self):
-      reply = QMessageBox.question(
-            None, 
-            '提示訊息', 
-            '返回後尚未儲存的菜單資料將會消失，請問是否繼續？',
-            QMessageBox.Yes | QMessageBox.No, 
-            QMessageBox.No)
-         
-      if reply == QMessageBox.No:
-         return
+      if self.setPage_stackedWidget.currentWidget() == self.setMenu_page:
+         reply = QMessageBox.question(
+               None, 
+               '提示訊息', 
+               '返回後尚未儲存的菜單資料將會消失，請問是否繼續？',
+               QMessageBox.Yes | QMessageBox.No, 
+               QMessageBox.No)
+            
+         if reply == QMessageBox.No:
+            return
       self.setPage_stackedWidget.setCurrentWidget(self.setDate_page)
       self.resetLayout()
    def head2SetMenu(self):
@@ -263,40 +265,45 @@ class setPage_controller(QWidget, Ui_setPage):
       
 
    def saveFavtoDB(self,FavMenuName):
-      if not self.store_name_lineEdit.text():
-         QMessageBox.warning(None, '警告', f'尚未輸入店名！')
-         return
-      store_name = self.store_name_lineEdit.text()
-      if self.verticalLayout.itemAt(0).widget().option_lineEdit.text():
-         reply = QMessageBox.question(
-            None, 
-            '提示訊息', 
-            f'{self.verticalLayout.itemAt(0).widget().option_lineEdit.text()}尚未新增，請問是否繼續？',
-            QMessageBox.Yes | QMessageBox.No, 
-            QMessageBox.No)
-         
-         if reply == QMessageBox.No:
+      if self.setPage_stackedWidget.currentWidget() == self.setMenu_page:
+         if not self.store_name_lineEdit.text():
+            QMessageBox.warning(None, '警告', f'尚未輸入店名！')
             return
-      FavData = pd.DataFrame(columns=['StoreName', 'FavMenuName', 'ItemName', 'price'])
-      for i in range(1, self.verticalLayout.count()-1):
-         item = self.verticalLayout.itemAt(i).widget()
-         if item.option_label.text() == '':
-            QMessageBox.warning(None, '警告', f'品項不可為空！')
-            return
-         if item.price_label.text() == '':
-            QMessageBox.warning(None, '警告', f'價格不可為空！')
-            return
-         FavData = pd.concat(
-            [FavData, 
-            pd.DataFrame({'StoreName':[store_name], 'FavMenuName':[FavMenuName], 'ItemName':[item.option_label.text()], 'price':[item.price_label.text()]})], 
-            ignore_index=True)
-      if not FavData.empty:
-         self.client.addFavMenu(FavData)
-         if FavMenuName != '上次菜單':
-            QMessageBox.information(None, '提示', f'成功新增至最愛！')
-      else:
-         QMessageBox.warning(None, '警告', f'無填寫菜單資料！')
-         
+         store_name = self.store_name_lineEdit.text()
+         if self.verticalLayout.itemAt(0).widget().option_lineEdit.text():
+            reply = QMessageBox.question(
+               None, 
+               '提示訊息', 
+               f'{self.verticalLayout.itemAt(0).widget().option_lineEdit.text()}尚未新增，請問是否繼續？',
+               QMessageBox.Yes | QMessageBox.No, 
+               QMessageBox.No)
+            
+            if reply == QMessageBox.No:
+               return
+         FavData = pd.DataFrame(columns=['StoreName', 'FavMenuName', 'ItemName', 'price'])
+         for i in range(1, self.verticalLayout.count()-1):
+            item = self.verticalLayout.itemAt(i).widget()
+            if item.option_label.text() == '':
+               QMessageBox.warning(None, '警告', f'品項不可為空！')
+               return
+            if item.price_label.text() == '':
+               QMessageBox.warning(None, '警告', f'價格不可為空！')
+               return
+            FavData = pd.concat(
+               [FavData, 
+               pd.DataFrame({'StoreName':[store_name], 'FavMenuName':[FavMenuName], 'ItemName':[item.option_label.text()], 'price':[item.price_label.text()]})], 
+               ignore_index=True)
+         if not FavData.empty:
+            self.client.addFavMenu(FavData)
+            if FavMenuName != '上次菜單':
+               QMessageBox.information(None, '提示', f'成功新增至最愛！')
+         else:
+            QMessageBox.warning(None, '警告', f'無填寫菜單資料！')
+      elif self.setPage_stackedWidget.currentWidget() is self.menuDetail_page:
+         store_name = self.menuDetailStoreName_label.text()
+         FavData = pd.DataFrame(columns=['StoreName', 'FavMenuName', 'ItemName', 'price'])
+         for i in range(self.menuDetail_tableView.model.rowCount()):
+            print(self.menuDetail_tableView.model.data(i,0))
       
 
    def returnHomePage(self):
