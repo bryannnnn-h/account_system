@@ -113,7 +113,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         else:
             self.stateList = [0]*len(self.MainData)
 
-        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
+        self.model = basic_infoModel(self.MainData, self.titleNameDict[TableName])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         
