@@ -2,7 +2,8 @@ from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 #from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
 from ui_py.AccountPage import Ui_AccountPage
-from model.CostumTableModel import SimpleTableModel
+from model.CostumTableModel import basic_infoModel
+from model.TableModel import AccountTableModel, FoodExpenseDetailModel, BookExpenseDetailModel
 import pandas as pd
 import numpy as np
 
@@ -26,12 +27,12 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         '月份':'Month', 
         '日':'Day'
     }
-    titleNameDict = {
-        '基本資料':['姓名', '年級', '方案月費', '聯絡電話', '備註'],
-        '帳務總表':['年份', '月份', '姓名', '年級', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
-        '餐費明細':['年份', '月份', '日', '姓名', '年級', '金額', '出帳紀錄', '備註'],
-        '教材註冊費':['年份', '月份', '姓名', '年級', '金額', '出帳紀錄', '備註']
-    }
+    # titleNameDict = {
+    #     '基本資料':['姓名', '年級', '方案月費', '聯絡電話', '備註'],
+    #     '帳務總表':['年份', '月份', '姓名', '年級', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註'],
+    #     '餐費明細':['年份', '月份', '日', '姓名', '年級', '金額', '出帳紀錄', '備註'],
+    #     '教材註冊費':['年份', '月份', '姓名', '年級', '金額', '出帳紀錄', '備註']
+    # }
     conditionChoiceDict = {
         '基本資料':['無','姓名', '年級', '方案月費', '聯絡電話'],
         '帳務總表':['無','年份', '月份', '姓名', '年級', '繳費紀錄'],
@@ -44,7 +45,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.setupUi(self)
         self.HomePage = HomePageWidget
         self.client = client
-        self.model = SimpleTableModel()
+        self.model = basic_infoModel()
         self.MainData = None
         self.stateList = None
         self.deleteId = None
@@ -70,7 +71,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
 
         self.insertRow_PushButton.setEnabled(False)
         self.deleteRow_PushButton.setEnabled(False)
-        print('origin ', self.MainData)
+        
 
     def refreshTable(self):
         TableName = self.selectTable_comboBox.currentText()
@@ -85,29 +86,34 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
-        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
+        self.model = basic_infoModel(self.MainData, self.titleNameDict[TableName])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         self.changeMode()
 
     def setupComboBox(self):
+        self.selectTable_comboBox.clear()
+        self.selectTable_comboBox.addItems(list(self.tableNameDict.keys()))
+        self.selectTable_comboBox.setCurrentIndex(0)
         self.selectTable_comboBox.currentTextChanged.connect(self.changeTable)
-    
+        
     def changeTable(self):
+        self.write_radioButton.setEnabled(False)
+        self.read_radioButton.setEnabled(False)
         TableName = self.selectTable_comboBox.currentText()
         self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
         if 'ID' in self.MainData.columns:
             self.idList = list(self.MainData['ID'])
             self.MainData = self.MainData.drop(columns = ['ID'])
-        #self.deleteData = pd.DataFrame(columns = self.MainData.columns)
+        
         self.deleteId = []
         if self.MainData.at[0, 'name'] == '':
             self.stateList = [2]
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
-        #self.MainData.columns = self.titleNameDict[TableName] #cannot change position
-        self.model = SimpleTableModel(self.MainData, ['姓名', '年級', '方案月費', '聯絡電話', '備註'])
+
+        self.model = SimpleTableModel(self.MainData, self.titleNameDict[TableName])
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
         
@@ -116,6 +122,8 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.write_radioButton.toggle()
         if self.tableNameDict[TableName] == 'basic_info':
             self.Insertable = True
+            self.write_radioButton.setEnabled(True)
+            self.read_radioButton.setEnabled(True)
 
     def changeMode(self):
         self.insertRow_PushButton.setEnabled(False)
@@ -150,7 +158,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList.insert(len(self.idList), 0)
             
             self.MainData = pd.concat([self.MainData, newRow], ignore_index=True)
-            print(self.idList, '\n', self.stateList)
+            
             self.showTable.model().insertRows(self.showTable.model().rowCount()-1, 1, QModelIndex())
         
 
