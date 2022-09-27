@@ -4,7 +4,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
 from ui_py.AccountPage import Ui_AccountPage
 from model.CostumTableModel import basic_infoModel
-from model.TableModel import AccountTableModel, FoodExpenseDetailModel, BookExpenseDetailModel
+from model.TableModel import AccountTableModel, FoodExpenseDetailModel, BookExpenseDetailModel, nameEnterDelegate, isRecordDelegate
 import pandas as pd
 import numpy as np
 
@@ -48,6 +48,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.idList = None
         self.Insertable = False
         self.currentTableName = '基本資料'
+        self.nameList = self.client.getNameList()
 
         
         self.initUI()    
@@ -83,7 +84,7 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
         if 'ID' in self.MainData.columns:
             self.idList = list(self.MainData['ID'])
-            self.MainData = self.MainData.drop(columns = ['ID'])
+            self.MainData = self.MainData.drop(columns = ['ID']) 
 
         self.deleteId = []
         if self.MainData.at[0, 'name'] == '':
@@ -91,8 +92,12 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
             self.idList = [0]
         else:
             self.stateList = [0]*len(self.MainData)
+
+        if self.tableNameDict[TableName] == 'BookExpenseDetail':
+            self.showTable.setItemDelegateForColumn(2, nameEnterDelegate(self.nameList, self.showTable))
+            self.showTable.setItemDelegateForColumn(5, isRecordDelegate(self.showTable))
             
-        exec(f'self.model = {self.tableNameDict[TableName]}Model(self.MainData)')
+        exec(f'self.model = {self.tableNameDict[TableName]}Model(self.idList, self.MainData)')
         self.model.dataChanged.connect(self.rewriteData)
         self.showTable.setModel(self.model)
 
@@ -117,24 +122,6 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         self.read_radioButton.setEnabled(False)
 
         self.setTableData()
-        
-        # TableName = self.selectTable_comboBox.currentText()
-        # self.currentTableName = TableName
-        # self.MainData= self.client.getTableContent(self.tableNameDict[TableName])
-        # if 'ID' in self.MainData.columns:
-        #     self.idList = list(self.MainData['ID'])
-        #     self.MainData = self.MainData.drop(columns = ['ID'])
-        
-        # self.deleteId = []
-        # if self.MainData.at[0, 'name'] == '':
-        #     self.stateList = [2]
-        #     self.idList = [0]
-        # else:
-        #     self.stateList = [0]*len(self.MainData)
-
-        # exec(f'self.model = {self.tableNameDict[TableName]}Model(self.MainData)')
-        # self.model.dataChanged.connect(self.rewriteData)
-        # self.showTable.setModel(self.model)
         
         if not self.read_radioButton.isChecked():
             self.read_radioButton.setChecked(True)
@@ -223,10 +210,6 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
         TableName = self.selectTable_comboBox.currentText()
         if len(self.deleteId) != 0:
             self.client.deleteTablebyId(self.tableNameDict[TableName], list(self.deleteId))
-            # if self.tableNameDict[TableName] == 'basic_info':
-            #     self.client.deleteTablebyId('AccountTable', list(self.deleteId))
-            #     self.client.deleteTablebyId('FoodExpenseDetail', list(self.deleteId))
-            #     self.client.deleteTablebyId('BookExpenseDetail', list(self.deleteId))
         
         insertDf = pd.DataFrame(columns = self.MainData.columns)
         
@@ -241,19 +224,11 @@ class AccountPage_controller(QWidget, Ui_AccountPage):
                     self.idList[index],
                     list(self.MainData.columns),
                     list(self.MainData.iloc[index]))
-                # if self.tableNameDict[TableName] == 'basic_info':
-                #     updateDf = self.MainData.loc[[index],['name', 'grade', 'program']]
-                #     updateDf['program'] = int(updateDf['program'])
-                    # self.client.UpdateRelevantTable('AccountTable', self.idList[index], updateDf, 'isPaid')
-                    # self.client.UpdateRelevantTable('FoodExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
-                    # self.client.UpdateRelevantTable('BookExpenseDetail', self.idList[index], updateDf[['name', 'grade']], 'isCounted')
+                
         if not insertDf.empty:
             self.client.InsertBasicTable(self.tableNameDict[TableName], insertDf)
-            # if self.tableNameDict[TableName] == 'basic_info':
-                # self.client.InsertRelevantTable('AccountTable',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade','program']].apply(lambda x: x.apply(lambda y:int(y)) if x.name=='program' else x))
-                # self.client.InsertRelevantTable('FoodExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
-                # self.client.InsertRelevantTable('BookExpenseDetail',list(insertDf['name']), list(insertDf['tel']), insertDf[['grade']])
-
+        
+           
     def saveTable(self):
         if self.checkSpaceInTable():
             return False

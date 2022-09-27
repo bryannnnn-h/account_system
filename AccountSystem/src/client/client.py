@@ -29,6 +29,15 @@ class clientHandler:
 
         self.setDataByServer(todayMsg)
     '''
+
+    def getNameList(self):
+        nameList = self.getDatafromServer('Fetch basic_info ID name grade')
+        if nameList.size != 0:
+            nameListDf = pd.DataFrame(nameList, columns=['ID', 'name', 'grade'])
+        else:
+            nameListDf = pd.DataFrame(columns=['ID', 'name', 'grade'])
+        return nameListDf
+
     def getSelectedMenuInfo(self):
         get_msg = 'Fetch MenuRecord ID Year Month Day StoreName:isSelected (True)'
         MenuInfo = self.getDatafromServer(get_msg)

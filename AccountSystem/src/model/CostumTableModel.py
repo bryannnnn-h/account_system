@@ -4,7 +4,7 @@ from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel
 import numpy as np
 import pandas as pd
 class basic_infoModel(QAbstractTableModel):
-    def __init__(self, data=pd.DataFrame(), parent=None):
+    def __init__(self, idList=[], data=pd.DataFrame(), parent=None):
         super().__init__(parent)
         self.title = ['姓名', '年級', '方案月費', '聯絡電話', '備註']
         self._data = np.array(data)        
