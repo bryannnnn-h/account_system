@@ -259,7 +259,11 @@ class clientHandler:
     def updateMenuSelectState(self, id, isSelected):
         set_msg = f'Update MenuRecord isSelected {isSelected}:id ({id})'
         self.setDataByServer(set_msg)
-    
+    def deleteMenuByID(self, id):
+        del_msg = f'Delete MenuRecord:ID ({id})'
+        self.setDataByServer(del_msg)
+        del_msg = f'Delete MenuDetail:ID ({id})'
+        self.setDataByServer(del_msg)
 
 
 
