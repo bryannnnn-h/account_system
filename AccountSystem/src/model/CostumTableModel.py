@@ -7,11 +7,15 @@ class basic_infoModel(QAbstractTableModel):
     def __init__(self, idList=[], data=pd.DataFrame(), parent=None):
         super().__init__(parent)
         self.title = ['姓名', '年級', '方案月費', '聯絡電話', '備註']
+        self.idList = idList
         self._data = np.array(data)        
         self.mode = 'r'
         
     def AllData(self):
-        return self._data    
+        return self._data 
+
+    def IDList(self):
+        return self.idList   
         
     def data(self, index, role):
         if index.isValid():
