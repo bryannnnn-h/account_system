@@ -30,7 +30,8 @@ class clientHandler:
         self.setDataByServer(todayMsg)
     '''
 
-    def getNameList(self):
+    def getNameList(self): 
+        #get id name grade from basic info
         nameList = self.getDatafromServer('Fetch basic_info ID name grade')
         if nameList.size != 0:
             nameListDf = pd.DataFrame(nameList, columns=['ID', 'name', 'grade'])
@@ -133,39 +134,40 @@ class clientHandler:
         msg = f'set {TableName} {col_msg} {data_msg}'
         
         self.setDataByServer(msg)
+    # def insertId2Table(self, TableName, idList):
+    #     id_str = str(idList).replace("[", "(").replace("]", ")").replace(" ","").replace("'", "")
+    #     msg = f'set {TableName} (ID) {id_str}'
+    #     self.setDataByServer(msg)
            
 
-    def InsertRelevantTable(self, TableName, name, tel, insert_data):
-        insert_id = []
-        for index, item in enumerate(name):
-            insert_id.append(self.getDatafromServer(f'Fetch basic_info ID:name ("{item}")&tel ("{tel[index]}")').squeeze())
-        insert_column = str(('ID','name') + tuple(insert_data.columns)).replace("'", "").replace(" ", "")
-        setTableMsg = f'set {TableName} {insert_column} '
-        for index, id in enumerate(insert_id):
-            tableMsg = str(list(insert_data.iloc[index])).replace("[", "").replace("]", "").replace(" ","")
-            setTableMsg += f'({id},"{name[index]}",{tableMsg}),' 
-        self.setDataByServer(setTableMsg)
+    # def InsertRelevantTable(self, TableName, name, tel, insert_data):
+    #     insert_id = []
+    #     for index, item in enumerate(name):
+    #         insert_id.append(self.getDatafromServer(f'Fetch basic_info ID:name ("{item}")&tel ("{tel[index]}")').squeeze())
+    #     insert_column = str(('ID','name') + tuple(insert_data.columns)).replace("'", "").replace(" ", "")
+    #     setTableMsg = f'set {TableName} {insert_column} '
+    #     for index, id in enumerate(insert_id):
+    #         tableMsg = str(list(insert_data.iloc[index])).replace("[", "").replace("]", "").replace(" ","")
+    #         setTableMsg += f'({id},"{name[index]}",{tableMsg}),' 
+    #     self.setDataByServer(setTableMsg)
 
-    def UpdateRelevantTable(self, TableName, id, insert_data, checkState):
-        column = tuple(insert_data.columns)
-        print(column[0],end='\n')
-        print(column, end='\n')
-        msg = f'Update {TableName} '
+    # def UpdateRelevantTable(self, TableName, id, insert_data, checkState):
+    #     column = tuple(insert_data.columns)
+    #     print(column[0],end='\n')
+    #     print(column, end='\n')
+    #     msg = f'Update {TableName} '
        
-        for item in column:
-            insert_item = f'"{insert_data.at[0, item]}"'
-            msg += f'{item} {insert_item}'
-            if item != column[-1]:
-                msg += '&'
-            else:
-                msg += ':'
+    #     for item in column:
+    #         insert_item = f'"{insert_data.at[0, item]}"'
+    #         msg += f'{item} {insert_item}'
+    #         if item != column[-1]:
+    #             msg += '&'
+    #         else:
+    #             msg += ':'
         
 
-        msg += f'ID ({id})&{checkState} (False)'
-        self.setDataByServer(msg)
-
-
-
+    #     msg += f'ID ({id})&{checkState} (False)'
+    #     self.setDataByServer(msg)
 
     def UpdateBasicTable(self, TableName, action, id, column, data):
         TypeArray = self.getDatafromServer(f'showInfo DATA_TYPE {TableName}')[1:]
@@ -181,6 +183,74 @@ class clientHandler:
                 msg += ':'
         msg += f'ID ({id})'
         self.setDataByServer(msg)
+
+    def generateAccount(self, year, month):
+        dataExist = False
+        studentInfoList  = self.getDatafromServer('Fetch basic_info ID name grade program')
+        if studentInfoList.size != 0:
+            studentInfo = pd.DataFrame(studentInfoList, columns=['ID', 'name', 'grade', 'program'])
+            dataExist = True
+        else:
+            studentInfo = pd.DataFrame(columns=['ID', 'name', 'grade', 'program'])
+
+        bookExpenseList = self.getDatafromServer(f'Fetch BookExpenseDetail ID price:Year ({year})&Month ({month})&isCounted (False)')
+        if bookExpenseList.size != 0:
+            bookExpense = pd.DataFrame(bookExpenseList, columns=['ID', 'price'])
+        else:
+            bookExpense = pd.DataFrame(columns=['ID', 'price'])
+
+        foodExpenseList = self.getDatafromServer(f'Fetch FoodExpenseDetail ID price:Year ({year})&Month ({month})&isCounted (False)')
+        if foodExpenseList.size != 0:
+            foodExpense = pd.DataFrame(foodExpenseList, columns=['ID', 'price'])
+            foodExpense[['price']] = foodExpense[['price']].apply(pd.to_numeric)
+            foodItemGroup = foodExpense.groupby('ID').agg({'price':'sum'})
+            foodItemGroup.reset_index(inplace = True)
+            foodItemGroup = foodItemGroup.rename(columns = {'index':'ID'})
+        else:
+            foodItemGroup = pd.DataFrame(columns=['ID', 'price'])
+
+        if dataExist == False: return
+        currentAccount = None
+        accountList = self.getDatafromServer(f'Fetch AccountTable ID name grade program foodExpense bookExpense Total isPaid:Year ({year})&Month ({month})')
+        if accountList != 0:
+            currentAccount = pd.DataFrame(accountList, columns=['ID', 'name', 'grade', 'program', 'foodExpense', 'bookExpense', 'Total', 'isPaid'])
+            currentAccount = currentAccount[currentAccount.isPaid != True]
+            return
+
+
+        else:
+            currentAccount = pd.DataFrame(columns=['ID', 'name', 'grade', 'program', 'foodExpense', 'bookExpense', 'Total', 'isPaid'])
+            msg = self.makeAccountMsg(currentAccount,studentInfo,bookExpense,foodItemGroup,year,month)
+
+            self.setDataByServer(msg)
+
+    def makeAccountMsg(self,currentAccount,studentInfo,bookExpense,foodItemGroup,year,month):
+        for index, item in studentInfo.iterrows():
+            currentAccount.loc[index,['ID', 'name', 'grade', 'program']] = item[['ID', 'name', 'grade', 'program']]
+            if item['ID'] in bookExpense['ID']:
+                currentAccount.loc[index,'bookExpense'] = bookExpense.loc[bookExpense.ID==item['ID'],'price']
+            else:
+                currentAccount.loc[index,'bookExpense'] = 0
+            if item['ID'] in foodItemGroup['ID']:
+                currentAccount.loc[index,'foodExpense'] = foodItemGroup.loc[foodItemGroup.ID==item['ID'],'price']
+            else:
+                currentAccount.loc[index,'foodExpense'] = 0
+            print(currentAccount)
+            currentAccount.loc[index,'Total'] = int(currentAccount.loc[index,'program']) + int(currentAccount.loc[index,'foodExpense']) + int(currentAccount.loc[index,'bookExpense'])
+        msg = f'set AccountTable (ID,Year,Month,name,grade,program,foodExpense,bookExpense,Total,isPaid) '
+
+        data_msg = ''
+
+        for index, item in currentAccount.iterrows():      
+            data_msg += f'({item["ID"]},{year},{month},\'{item["name"]}\',\'{item["grade"]}\',{item["program"]},{item["foodExpense"]},{item["bookExpense"]},{item["Total"]},False),'
+
+        msg += f'{data_msg}'
+
+        return msg
+
+            
+        
+        
 
     def getTodayRecord(self):
         TodayRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName price amount TotalPrice')
