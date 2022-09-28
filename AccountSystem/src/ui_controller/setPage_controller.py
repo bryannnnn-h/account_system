@@ -3,7 +3,7 @@ from tkinter import font
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QDate, QModelIndex
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QHeaderView, QTableView
+from PyQt5.QtWidgets import QWidget, QMessageBox, QInputDialog, QHeaderView, QTableView, QAbstractItemView
 from ui_py.setPage import Ui_setPage
 from ui_controller.adding_option_controller import adding_option_controller
 from model.menuModel import menuRecordModel, menuRecordSelectDelegate, menuDetailModel
@@ -18,7 +18,9 @@ class menuRecordTableView(QTableView):
       self.setFont(font)
       self.model = menuRecordModel(data)
       self.setItemDelegateForColumn(5, menuRecordSelectDelegate(self))
+      self.setItemDelegateForColumn(0, menuRecordSelectDelegate(self))
       self.setModel(self.model)
+      self.setSelectionMode(QAbstractItemView.MultiSelection)
       self.resizeColumnsToContents()
       self.resizeRowsToContents()
       self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -29,6 +31,7 @@ class menuRecordTableView(QTableView):
    def resetModel(self, data):
       self.model = menuRecordModel(data)
       self.setItemDelegateForColumn(5, menuRecordSelectDelegate(self))
+      self.setItemDelegateForColumn(0, menuRecordSelectDelegate(self))
       self.setModel(self.model)
 class menuDetailTableView(QTableView):
    def __init__(self, data=pd.DataFrame()):
@@ -370,7 +373,11 @@ class setPage_controller(QWidget, Ui_setPage):
          if reply == QMessageBox.No:
             return
          self.resetLayout()
-      index = self.menuRecord_tableView.currentIndex().row()
+      indexes = self.menuRecord_tableView.selectionModel().selectedIndexes()
+      if len(indexes) != 0:
+         index = indexes[-1].row()
+      else:
+         index = -1
       if index != -1:
          self.menuDetailID = self.menuIDList[index]
          menuDetailDf = self.client.getMenuDetailbyID(self.menuDetailID)

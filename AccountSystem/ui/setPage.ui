@@ -578,7 +578,7 @@
       <second>0</second>
       <year>2022</year>
       <month>12</month>
-      <day>27</day>
+      <day>26</day>
      </datetime>
     </property>
     <property name="minimumDateTime">
@@ -588,7 +588,7 @@
       <second>0</second>
       <year>2022</year>
       <month>9</month>
-      <day>10</day>
+      <day>9</day>
      </datetime>
     </property>
     <property name="displayFormat">

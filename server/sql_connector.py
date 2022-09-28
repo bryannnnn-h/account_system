@@ -23,8 +23,8 @@ class db_connecter:
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS BookExpenseDetail (ID INT, Year INT, Month INT, name VARCHAR(20) NOT NULL, grade VARCHAR(20) NOT NULL, price INT DEFAULT 0, isCounted BOOL DEFAULT FALSE, 備註 VARCHAR(200))')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuDetail (ID INT, ItemName VARCHAR(20) NOT NULL, price INT NOT NULL)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS MenuRecord (ID INT NOT NULL AUTO_INCREMENT, Year INT NOT NULL, Month INT NOT NULL, Day INT NOT NULL, StoreName VARCHAR(20) NOT NULL, isSelected BOOL DEFAULT FALSE, isCompleted BOOL DEFAULT FALSE, PRIMARY KEY(ID))')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
-                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS TodayRecord (Student_ID INT, Menu_ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20),StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
+                self.db_cursor.execute('CREATE TABLE IF NOT EXISTS HistoryRecord (Student_ID INT, Menu_ID INT, Year INT, Month INT, Day INT, StoreName VARCHAR(20), StudentName VARCHAR(20), ItemName VARCHAR(20), price INT, amount INT, TotalPrice INT)')
                 self.db_cursor.execute('CREATE TABLE IF NOT EXISTS FavMenu (StoreName VARCHAR(20), FavMenuName VARCHAR(20), ItemName VARCHAR(20), price INT)')
             except Exception as ex:
                 self.closeDB()

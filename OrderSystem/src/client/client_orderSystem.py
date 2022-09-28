@@ -22,25 +22,27 @@ class client_orderSystem():
     def getMenuInfo(self):
         get_msg = f'Fetch MenuRecord ID Year Month Day StoreName:isSelected (True)'
         Menudata = self.getDatafromServer(get_msg)
-        date = '0-0-0'
-        y, m, d = date.split('-')
         if Menudata.size != 0:
             menuID,y,m,d,storeName = Menudata.squeeze()
             date = '-'.join([str(y),str(m),str(d)])
             MenuArray = self.getDatafromServer(f'Fetch MenuDetail ItemName price:ID ({menuID})')
             todayMenu = pd.DataFrame(MenuArray, columns=['ItemName', 'price'])
         else:
+            menuID = 0
             date = '0-0-0'
             storeName = '無'
             todayMenu = pd.DataFrame()
-        return date, storeName, todayMenu
+        return menuID, date, storeName, todayMenu
 
     def getNameList(self):
         nameList = self.getDatafromServer('Fetch basic_info name').squeeze()
         return nameList
+    def getStudentIDList(self):
+        studentIDList = self.getDatafromServer('Fetch basic_info ID').squeeze()
+        return studentIDList
     
-    def getTodayOrderRecordbyName(self, name):
-        orderRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName amount:StudentName ("{name}")')
+    def getTodayOrderRecordbyID(self, ID):
+        orderRecordArray = self.getDatafromServer(f'Fetch TodayRecord ItemName amount:Student_ID ("{ID}")')
         if orderRecordArray.size != 0:
             orderRecord = pd.DataFrame(orderRecordArray, columns=['ItemName', 'amount']).set_index('ItemName')
         else:
@@ -76,14 +78,14 @@ class client_orderSystem():
 
         return data_container
     
-    def setTodayRecord(self, order):
-        set_msg = "set TodayRecord (Year,Month,Day,StoreName,StudentName,ItemName,price,amount,TotalPrice) "
+    def setTodayRecord(self, order, student_id, menu_id,y,m,d,storeName,studentName):
+        set_msg = "set TodayRecord (Student_ID,Menu_ID,Year,Month,Day,StoreName,StudentName,ItemName,price,amount,TotalPrice) "
         for index, item in order.iterrows():
-            set_msg += f'(\"{int(item["Year"])}\",\"{int(item["Month"])}\",\"{int(item["Day"])}\",\"{item["StoreName"]}\",\"{item["StudentName"]}\",\"{item["ItemName"]}\",{int(item["price"])},{int(item["amount"])},{int(item["TotalPrice"])}),'
+            set_msg += f'({student_id},{menu_id},{y},{m},{d},"{storeName}","{studentName}",\"{item["ItemName"]}\",{item["price"]},{item["amount"]},{item["TotalPrice"]}),'
         self.setDataByServer(set_msg)
     
-    def deleteTodayRecord(self, name):
-        delete_msg = f'Delete TodayRecord:StudentName ("{name}")'
+    def deleteTodayRecord(self, ID):
+        delete_msg = f'Delete TodayRecord:Student_ID ("{ID}")'
         self.setDataByServer(delete_msg) 
 
     def setDataByServer(self, setDataMsg):

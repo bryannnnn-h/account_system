@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel,QAbstractItemModel
-from PyQt5.QtWidgets import QItemDelegate, QCheckBox
+from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel,QAbstractItemModel,QItemSelectionModel
+from PyQt5.QtWidgets import QItemDelegate, QCheckBox, QHBoxLayout, QWidget, QSpacerItem
 from model.CostumTableModel import basic_infoModel
 import numpy as np
 import pandas as pd
@@ -7,7 +7,7 @@ class menuRecordModel(basic_infoModel):
     def __init__(self, data=pd.DataFrame(), parent=None):
         super().__init__(data, parent)
         if self._data[0, 0] != '':
-            self._data = np.insert(self._data, 0, '選擇', axis=1)
+            self._data = np.insert(self._data, 0, '1', axis=1)
         else:
             self._data = np.insert(self._data, 0, '', axis=1)
         self.title = ['','年','月','日','店名','設定為今日菜單','完成狀態']
@@ -33,9 +33,17 @@ class menuDetailModel(basic_infoModel):
 class menuRecordSelectDelegate(QItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.viewSeiectList = []
         self.checkboxList = []
     def paint(self,painter, option, index):
         if not self.parent().indexWidget(index):
+            if index.column() == 0 and index.data(Qt.DisplayRole) != '':
+                viewSelect_checkbox = QCheckBox(self.parent())
+                viewSelect_checkbox.setChecked(False)
+                self.viewSeiectList.append(viewSelect_checkbox)
+                viewSelect_checkbox.stateChanged.connect(lambda: self.viewSelect(index))
+                self.parent().setIndexWidget(index, viewSelect_checkbox)
+                return
             if index.data(Qt.DisplayRole):
                 values = int(index.data(Qt.DisplayRole))
                 #if values == 1:
@@ -55,6 +63,12 @@ class menuRecordSelectDelegate(QItemDelegate):
             self.parent().model.setData(index.row(), '1')
         else:
             self.parent().model.setData(index.row(), '0')
+    
+    def viewSelect(self, index):
+        if self.viewSeiectList[index.row()].checkState() == Qt.Checked:
+            self.parent().selectionModel().select(index, QItemSelectionModel.SelectCurrent)
+        else:
+            self.parent().selectionModel().select(index, QItemSelectionModel.Deselect)
         
         
         

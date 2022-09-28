@@ -12,8 +12,9 @@ class OrderSystem(QWidget, Ui_orderSystem):
         self.nameInput_comboBox = MyComboBox(self.nameInput_widget)
         self.client = client
         self.OrderItemList = []
-        self.menuDate, self.storeName, self.todayMenu = self.client.getMenuInfo()
+        self.menuID, self.menuDate, self.storeName, self.todayMenu = self.client.getMenuInfo()
         self.nameList = self.client.getNameList()
+        self.studentIDList = self.client.getStudentIDList()
         self.orderRecord = pd.DataFrame()
         self.initUI()
     
@@ -45,7 +46,8 @@ class OrderSystem(QWidget, Ui_orderSystem):
                 return
             self.orderSystem_stackedWidget.setCurrentWidget(self.order_page)
             self.studentName_label.setText(student_name)
-            self.orderRecord = self.client.getTodayOrderRecordbyName(student_name)
+            student_ID = self.studentIDList[self.nameInput_comboBox.currentIndex() - 1]
+            self.orderRecord = self.client.getTodayOrderRecordbyID(student_ID)
             if not self.orderRecord.empty:
                 for item in self.OrderItemList:
                     if item.itemName in self.orderRecord.index:
@@ -57,19 +59,20 @@ class OrderSystem(QWidget, Ui_orderSystem):
 
 
     def orderConfirm(self):
-        order = pd.DataFrame(columns=["Year","Month","Day","StoreName", "StudentName", "ItemName", "price", "amount", "TotalPrice"])
+        order = pd.DataFrame(columns=["ItemName", "price", "amount", "TotalPrice"])
         y,m,d = self.menuDate.split('-')
-        self.nameInput_comboBox.setCurrentIndex(0)
+        studentID = self.studentIDList[self.nameInput_comboBox.currentIndex()-1]
         StudentName = self.studentName_label.text()
-        self.studentName_label.clear()
         for item in self.OrderItemList:
             if item.amount_spinBox.value() > 0:
-                order = pd.concat([order, pd.DataFrame({"Year":[y],"Month":[m],"Day":[d],"StoreName":[self.storeName], "StudentName":[StudentName], "ItemName":[item.itemName], "price":[item.price], "amount":[item.amount_spinBox.value()], "TotalPrice":[item.price_label.text()]})], ignore_index=True)
+                order = pd.concat([order, pd.DataFrame({"ItemName":[item.itemName], "price":[item.price], "amount":[item.amount_spinBox.value()], "TotalPrice":[item.price_label.text()]})], ignore_index=True)
                 item.amount_spinBox.setValue(0)
         if not self.orderRecord.empty:
-            self.client.deleteTodayRecord(StudentName)
+            self.client.deleteTodayRecord(studentID)
         if not order.empty:
-            self.client.setTodayRecord(order)
+            self.client.setTodayRecord(order,studentID,self.menuID,y,m,d,self.storeName,StudentName)
+        self.studentName_label.clear()
+        self.nameInput_comboBox.setCurrentIndex(0)
         self.orderSystem_stackedWidget.setCurrentWidget(self.nameInput_page)
 
 class MyComboBox(QComboBox):

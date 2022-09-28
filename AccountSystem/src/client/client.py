@@ -42,7 +42,8 @@ class clientHandler:
         get_msg = 'Fetch MenuRecord ID Year Month Day StoreName:isSelected (True)'
         MenuInfo = self.getDatafromServer(get_msg)
         if MenuInfo.size != 0:
-            MenuInfo = MenuInfo.squeeze()
+            menuID,y,m,d,storeName = MenuInfo.squeeze()
+            menuDate = '-'.join([str(y),str(m),str(d)])
         else:
             menuID = '0'
             menuDate = ''
