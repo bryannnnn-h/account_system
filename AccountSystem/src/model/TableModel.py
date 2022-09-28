@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QModelIndex, Qt, QAbstractTableModel,QAbstractItemModel, QSortFilterProxyModel
-from PyQt5.QtWidgets import QItemDelegate, QCompleter, QComboBox, QLabel
+from PyQt5.QtCore import QModelIndex, Qt, QAbstractItemModel, QSortFilterProxyModel
+from PyQt5.QtWidgets import QItemDelegate, QCompleter, QComboBox, QLabel, QCheckBox
 from PyQt5.QtGui import QFont
 from model.CostumTableModel import basic_infoModel
 import numpy as np
@@ -9,12 +9,7 @@ class AccountTableModel(basic_infoModel):
         super().__init__(data, parent)
         self.mode = 'r'
         self.title = ['年份', '月份', '姓名', '年級', '方案月費', '伙食費', '教材費', '總額', '繳費紀錄', '備註']
-        print('this is AccountTableModel')
-    # def setData(self, row, value):
-    #     index = self.createIndex(row,8)
-    #     self._data[row, 8] = value
-    #     self.dataChanged.emit(index,index)
-    #     return True
+       
     def flags(self, index):
         if index.column() == 9:            
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
@@ -25,12 +20,7 @@ class FoodExpenseDetailModel(basic_infoModel):
         super().__init__(data, parent)
         self.mode = 'r'
         self.title = ['年份', '月份', '日', '姓名', '年級', '金額', '出帳紀錄', '備註']
-        print('this is FoodExpenseDetailModel')
-    # def setData(self, row, value):
-    #     index = self.createIndex(row,7)
-    #     self._data[row, 7] = value
-    #     self.dataChanged.emit(index,index)
-    #     return True
+        
     def flags(self, index):
         if index.column() == 7:            
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
@@ -41,7 +31,6 @@ class BookExpenseDetailModel(basic_infoModel):
         super().__init__(data, parent)
         self.mode = 'r'
         self.title = ['年份', '月份', '姓名', '年級', '金額', '出帳紀錄', '備註']
-        print('this is BookExpenseDetailModel')
         
     def flags(self, index):
         if self.mode =='w':
@@ -56,27 +45,33 @@ class BookExpenseDetailModel(basic_infoModel):
                 return Qt.ItemIsSelectable | Qt.ItemIsEnabled
         else:
             return super().flags(index)
+    
+    def setIdList(self, index, current_id):
+        self.idSignal.emit(index, current_id)
 
 
 class nameEnterDelegate(QItemDelegate):
-    def __init__(self, nameList ,parent=None):
+    def __init__(self, dataList ,parent=None):
         super().__init__(parent)
-        self.nameList = nameList
+        self.dataList = dataList
         
     def createEditor(self, parent, option, index):
         enterWiget = MyComboBox(parent)
-        enterWiget.addItems(list(self.nameList['name']))
+        enterWiget.addItems(list(self.dataList['name']))
         return enterWiget
-
     
     def setModelData(self, editor, model, index):
-        student_index = editor.currentIndex()
-        grade = self.nameList.at[student_index, 'grade']
-        gradeTableIndex = model.createIndex(index.row(), 3)
-        isRecordTableIndex = model.createIndex(index.row(), 5)
-        model.setData(index, editor.currentText(), Qt.EditRole)
-        model.setData(gradeTableIndex, grade, Qt.EditRole)
-        model.setData(isRecordTableIndex, False, Qt.EditRole)
+        if editor.currentIndex() != 0:
+            student_index = editor.currentIndex() - 1
+            grade = self.dataList.at[student_index, 'grade']
+            student_id = self.dataList.at[student_index, 'ID']
+            gradeTableIndex = model.createIndex(index.row(), 3)
+            isRecordTableIndex = model.createIndex(index.row(), 5)
+            model.setData(index, editor.currentText(), Qt.EditRole)
+            model.setData(gradeTableIndex, grade, Qt.EditRole)
+            model.setData(isRecordTableIndex, False, Qt.EditRole)
+            model.setIdList(index, int(student_id))
+
 
 
 class isRecordDelegate(QItemDelegate):
@@ -137,3 +132,23 @@ class MyComboBox(QComboBox):
         self.completer.setCompletionColumn(column)
         self.pFilterModel.setFilterKeyColumn(column)
         super(MyComboBox, self).setModelColumn(column)
+
+class isPaidDelegate(QItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.paidList = []
+    def paint(self, painter, option, index):
+        if not self.parent().indexWidget(index):
+            if index.data(Qt.DisplayRole) != '':
+                values = int(index.data(Qt.DisplayRole))
+                isPaid_checkbox = QCheckBox('已繳費',self.parent())
+                self.paidList.append(isPaid_checkbox)
+                isPaid_checkbox.setChecked(values)
+                isPaid_checkbox.stateChanged.connect(lambda: self.changeCheck(index))
+                self.parent().setIndexWidget(index, isPaid_checkbox)
+
+    def changeCheck(self, index):
+        if self.paidList[index.row()].checkState() == Qt.Checked:
+            self.parent().model.setData(index.row(), '1')
+        else:
+            self.parent().model.setData(index.row(), '0')
