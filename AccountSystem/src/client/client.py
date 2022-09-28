@@ -128,6 +128,15 @@ class clientHandler:
                     else:
                         item_msg += f"{item[i]}"
                     if i != len(TypeArray)-1:
+                        item_msg += ','
+            else:
+                np.append(TypeArray,['int'])
+                for i, dtype in enumerate(TypeArray):
+                    if dtype == 'varchar':
+                        item_msg += f"'{item[i]}'"
+                    else:
+                        item_msg += f"{item[i]}"
+                    if i != len(TypeArray)-1:
                         item_msg += ','       
             data_msg += f'({item_msg}),'
 
