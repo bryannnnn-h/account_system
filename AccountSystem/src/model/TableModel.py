@@ -132,6 +132,11 @@ class MyComboBox(QComboBox):
         self.completer.setCompletionColumn(column)
         self.pFilterModel.setFilterKeyColumn(column)
         super(MyComboBox, self).setModelColumn(column)
+    
+    def resetComboBox(self):
+        self.clear()
+        self.addItem("")
+        self.setItemText(0, "")
 
 class isPaidDelegate(QItemDelegate):
     def __init__(self, parent=None):
